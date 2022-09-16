@@ -1,0 +1,8 @@
+version: "3"
+services:
+  bottle-neck:
+    build: .
+    volumes:
+      - ./data:/bottle_neck/data
+    ports:
+      - 8080:80
