@@ -6,3 +6,7 @@ services:
       - ./data:/bottle_neck/data
     ports:
       - 8080:80
+  db:
+    image: mongo
+    ports:
+      - 27017:27017
