@@ -7,6 +7,6 @@ services:
     ports:
       - 8080:80
   db:
-    image: mongo
+    image: mongo:6.0.1
     ports:
       - 27017:27017
