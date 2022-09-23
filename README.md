@@ -12,3 +12,5 @@
 
 `docker-compose up`
 
+The application is available at `http://localhost:8080`
+
