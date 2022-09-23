@@ -1,8 +1,4 @@
-FROM mongo:6.0.1
-
-RUN apt-get update && \
-    apt-get install -y python3 \
-                       python3-pip
+FROM python:3.9.14-alpine3.16
 
 WORKDIR /bottle_neck
 

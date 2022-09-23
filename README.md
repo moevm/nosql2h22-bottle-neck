@@ -8,7 +8,7 @@
 
 `docker-compose build`
 
-## Run container
+## Run containers
 
-`docker-compose run bottle-neck`
+`docker-compose up`
 
