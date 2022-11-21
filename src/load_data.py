@@ -1,4 +1,6 @@
 import overpy
+from pymongo import MongoClient
+from config import AREA_POLYGON, TYPE_CAPACITY, ORIGIN_DB_NAME
 
 
 def load_data(database):
@@ -18,8 +20,8 @@ def load_data(database):
     roads_collection = database.roads
 
     # Fetch all roads and nodes in area
-    result = api.query("""
-        way (poly:"59.980147421963146 30.312250094337468 59.972445424303565 30.2844249624462 59.96622566894886 30.278736936798886 59.96453869723286 30.26332214571193 59.949347482877776 30.284507653922166 59.94587234907377 30.306962011432642 59.946546084908604 30.319483336580884 59.95416225858059 30.34000898935265 59.9610169995363 30.335965638419612 59.97215932606719 30.33173135922497 59.97847216741082 30.322286587299565")
+    result = api.query(f"""
+        way (poly:"{AREA_POLYGON}")
           ["highway"~"^(motorway|trunk|primary|secondary|residential|tertiary|secondary_link)$"]; 
         (._;>;);
         out;
@@ -31,7 +33,8 @@ def load_data(database):
             roads_collection.insert_one(
                 {"start": [float(node_list[i - 1].lat), float(node_list[i - 1].lon)],
                  "end": [float(node_list[i].lat), float(node_list[i].lon)],
-                 "capacity": 0, "car_count": 0, "workload": 0,
+                 "capacity": TYPE_CAPACITY[way.tags["highway"]],
+                 "car_count": 0, "workload": 0,
                  "address": way.tags.get("name", 'n/a')}
             )
 
@@ -40,8 +43,25 @@ def load_data(database):
                 roads_collection.insert_one(
                     {"end": [float(node_list[i - 1].lat), float(node_list[i - 1].lon)],
                      "start": [float(node_list[i].lat), float(node_list[i].lon)],
-                     "capacity": 0, "car_count": 0, "workload": 0,
+                     "capacity": TYPE_CAPACITY[way.tags["highway"]],
+                     "car_count": 0, "workload": 0,
                      "address": way.tags.get("name", 'n/a')}
                 )
     for current_road in roads_collection.find():
         add_ways(current_road)
+
+
+def load_data_to_origin():
+    """
+    Load new roads data to origin database
+    :return:
+    """
+    client = MongoClient('mongodb://db', 27017)
+    database = client[ORIGIN_DB_NAME]
+    # Drop roads if present
+    database.roads.drop()
+    load_data(database)
+
+
+if __name__ == '__main__':
+    load_data_to_origin()
