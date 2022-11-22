@@ -1,5 +1,9 @@
 version: "3"
 services:
+  web-client:
+    build: ./client
+    ports:
+      - 8080:3000
   bottle-neck:
     build: ./server
     volumes:
