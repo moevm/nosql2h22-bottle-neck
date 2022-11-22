@@ -1,3 +1,16 @@
+import datetime
+
+# Server settings
+TIMEOUT = datetime.timedelta(days=1)
+PORT = 5000
+MONGO_PORT = 27017
+
+# Database names
+CURRENT_USERS_DB_NAME = "current_users"
+CURRENT_USERS_COLLECTION_NAME = "current_users"
+ORIGIN_DB_NAME = "origin_data"  # Origin database name
+MAP_IMAGE_SIZE = (800, 800)  # in pixels
+
 # Data loading config
 # Area for loading
 AREA_POLYGON = \
@@ -23,5 +36,3 @@ TYPE_CAPACITY = {
     'tertiary': 3,
     'secondary_link': 5
 }
-# Origin database name
-ORIGIN_DB_NAME = "origin_data"
