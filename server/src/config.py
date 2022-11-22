@@ -1,10 +1,14 @@
 import datetime
 
+# Server settings
 TIMEOUT = datetime.timedelta(days=1)
+PORT = 5000
+MONGO_PORT = 27017
+
+# Database names
 CURRENT_USERS_DB_NAME = "current_users"
 CURRENT_USERS_COLLECTION_NAME = "current_users"
-# Origin database name
-ORIGIN_DB_NAME = "origin_data"
+ORIGIN_DB_NAME = "origin_data"  # Origin database name
 MAP_IMAGE_SIZE = (800, 800)  # in pixels
 
 # Data loading config

@@ -11,7 +11,7 @@ import config
 app = Flask(__name__)
 app.config.update(SECRET_KEY="sdasda")
 
-client = MongoClient('mongodb://db', 27017)
+client = MongoClient('mongodb://db', config.MONGO_PORT)
 
 
 def main_page(user_db: Database) -> Response:
@@ -47,4 +47,4 @@ def on_start():
 if __name__ == "__main__":
     on_start()
     threading.Thread(target=periodic_task).start()
-    app.run('0.0.0.0', 80)
+    app.run('0.0.0.0', config.PORT)

@@ -2,10 +2,7 @@ version: "3"
 services:
   bottle-neck:
     build: ./server
-    volumes:
-      - ./app_data:/bottle_neck/data
-    ports:
-      - 5000:5000
+    entrypoint: ./load_data.sh
   db:
     image: mongo:6.0.1
     volumes:
