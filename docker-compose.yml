@@ -5,10 +5,12 @@ services:
     ports:
       - 8080:3000
   bottle-neck:
-    build: .
+    build: ./server
     volumes:
-      - ./data:/bottle_neck/data
+      - ./app_data:/bottle_neck/data
     ports:
-      - 5000:80
+      - 5000:5000
   db:
     image: mongo:6.0.1
+    volumes:
+      - ./mongo_data:/data/db
