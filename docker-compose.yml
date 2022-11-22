@@ -3,8 +3,10 @@ services:
   bottle-neck:
     build: .
     volumes:
-      - ./data:/bottle_neck/data
+      - ./app_data:/bottle_neck/data
     ports:
       - 8080:80
   db:
     image: mongo:6.0.1
+    volumes:
+      - ./mongo_data:/data/db
