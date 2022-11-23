@@ -1,13 +1,65 @@
 import './App.css';
+import './index.css'
 import * as React from 'react';
 import ColorToggleButton from './components/toggle'
 import InputComponent from "./components/inputComponent";
-class App extends React.Component{
+import {useEffect, useRef, useState} from "react";
+function App(){
 
-    state={
-        a : 6
+    const canvasRef = useRef(null);
+    const contextRef = useRef(null);
+    const [point1, point1State] = useState(null)
+    const [point2, point2State] = useState(null)
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        canvas.width = 500;
+        canvas.height = 500;
+        const context = canvas.getContext("2d");
+        context.lineCap = "round";
+        context.strokeStyle = "blue";
+        context.lineWidth = 8;
+        contextRef.current = context;
+    }, []);
+
+    const startDrawing = ({nativeEvent}) => {
+        const {offsetX, offsetY} = nativeEvent;
+        console.log(offsetX, offsetY)
+        if(point1 === null){
+            contextRef.current.beginPath();
+            contextRef.current.moveTo(offsetX, offsetY);
+            contextRef.current.lineTo(offsetX, offsetY);
+            contextRef.current.stroke();
+            point1State([offsetX, offsetY])
+        }
+        else if(point2 === null){
+            contextRef.current.beginPath();
+            contextRef.current.moveTo(offsetX, offsetY);
+            contextRef.current.lineTo(offsetX, offsetY);
+            contextRef.current.stroke();
+            point2State([offsetX, offsetY])
+        }
+        console.log(point1, point2)
+        nativeEvent.preventDefault();
+    };
+    function dropPoints(){
+        console.log(5)
+        contextRef.current.globalCompositeOperation = 'destination-out';
+        contextRef.current.lineWidth=10
+        if(point1 != null){
+            contextRef.current.lineTo(point1[0], point1[1]);
+            contextRef.current.stroke()
+            point1State(null)
+        }
+        if(point2 != null){
+            contextRef.current.lineTo(point2[0], point2[1]);
+            contextRef.current.stroke()
+            point2State(null)
+        }
+        contextRef.current.lineWidth=8
+        contextRef.current.globalCompositeOperation = 'source-over';
     }
-    render(){
+
     return(
         <div className="App">
             <div className="right">
@@ -21,9 +73,11 @@ class App extends React.Component{
                 <InputComponent vallue={0} type={"range"}/>
                 <div className="inline">
                     <button>Смоделировать</button>
-                    <button>Очистить точки на карте</button>
+                    <button onClick={(e)=>{
+                        dropPoints()
+                        }}>Очистить точки на карте</button>
                 </div>
-                <text>Количество маршрутов: {this.state.a}</text>
+                <text>Количество маршрутов: {6}</text>
                 <br/>
                 <ColorToggleButton/>
             </div>
@@ -31,7 +85,11 @@ class App extends React.Component{
                 <div class="table">
                     <div class="row">
                         <div class="cell">
-                            <canvas id="map" width="500" height="500"/>
+                            <canvas className="map"
+                                    ref={canvasRef}
+                                    onMouseDown={startDrawing}
+                            >
+                            </canvas>
                         </div>
                     </div>
                 </div>
@@ -39,7 +97,6 @@ class App extends React.Component{
 
         </div>
     )
-  }
 }
 
 export default App;

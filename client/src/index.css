@@ -14,10 +14,8 @@ body {
   display:inline-flex;
 }
 
-#map{
-  border: 1px solid black;
-  width: 50%;
-  height: 70%;
+.map{
+  border: 1px solid #000000;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
