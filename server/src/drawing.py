@@ -11,7 +11,10 @@ MAX_WORKLOAD = 10
 
 
 def get_road_color(road: dict):
-    c = road["workload"] / MAX_WORKLOAD
+    workload = road.get("workload")
+    if workload is None:
+        return WHITE_COLOR
+    c = workload / MAX_WORKLOAD
     return (int(c * 255), int((1 - c) * 255), 0)
 
 

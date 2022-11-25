@@ -36,7 +36,7 @@ def load_data(database):
                         [float(node_list[i].lon), float(node_list[i].lat)]
                     ],
                  "capacity": TYPE_CAPACITY[way.tags["highway"]],
-                 "car_count": 0, "workload": 0,
+                 "car_count": 0,
                  "address": way.tags.get("name", 'n/a')}
             )
 
@@ -48,7 +48,7 @@ def load_data(database):
                             [float(node_list[i - 1].lon), float(node_list[i - 1].lat)]
                         ],
                      "capacity": TYPE_CAPACITY[way.tags["highway"]],
-                     "car_count": 0, "workload": 0,
+                     "car_count": 0,
                      "address": way.tags.get("name", 'n/a')}
                 )
     for current_road in roads_collection.find():

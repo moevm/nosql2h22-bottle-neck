@@ -55,7 +55,8 @@ def update_roads(user_db: Database, roads: list[dict]):
             },
             {
                 "$set": {
-                    "workload": road["workload"]
+                    "workload": road["workload"],
+                    "car_count": road["car_count"]
                 }
             },
             upsert=True
