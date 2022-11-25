@@ -11,6 +11,11 @@ CURRENT_USERS_COLLECTION_NAME = "current_users"
 ORIGIN_DB_NAME = "origin_data"  # Origin database name
 MAP_IMAGE_SIZE = (800, 800)  # in pixels
 
+# GeoCoordinates
+FROM_EPSG = "EPSG:4326"
+TO_EPSG = "EPSG:3857"
+# TO_EPSG = "EPSG:32636"  # Saint Petersburg region
+
 # Data loading config
 # Area for loading
 AREA_POLYGON = \
