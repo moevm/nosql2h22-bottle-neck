@@ -15,6 +15,8 @@ MAP_IMAGE_SIZE = (800, 800)  # in pixels
 FROM_EPSG = "EPSG:4326"
 TO_EPSG = "EPSG:3857"
 # TO_EPSG = "EPSG:32636"  # Saint Petersburg region
+N = 64
+MAX_COORDINATE = 10 ** 9
 
 # Data loading config
 # Area for loading
