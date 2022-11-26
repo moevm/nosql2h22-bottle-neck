@@ -35,5 +35,5 @@ def check_session_time(mongo: MongoClient) -> Database:
 def user_request(mongo: MongoClient, do_something: callable):
     session_id = check_session_time(mongo)
     resp = do_something(session_id)
-    resp.set_cookie("bottle_neck_session_id", session_id, config.TIMEOUT)
+    resp.set_cookie("bottle_neck_session_id", session_id, config.TIMEOUT, samesite="Strict")
     return resp

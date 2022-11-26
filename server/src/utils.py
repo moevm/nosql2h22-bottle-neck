@@ -1,4 +1,3 @@
-from cmath import cos
 from pyproj import Transformer
 from pymongo.cursor import Cursor
 from random import randint, choice
@@ -50,17 +49,25 @@ def rotate_point(point: tuple[float, float], cos_value: float, sin_value: float,
 
 
 def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
-                        radius: float, n: int) -> list[tuple[float, float]]:
+                        radius: tuple[float, float], n: int) -> list[tuple[float, float]]:
     quadrant1 = []
     quadrant2 = []
     quadrant3 = []
     quadrant4 = []
     center = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
-    angle = math.atan(abs(p1[1] - p2[1]) / max(abs(p1[0] - p2[0]), 0.000001))
+    x_points_diff = max(abs(p2[0] - p1[0]), 0.000001)
+    if p2[0] - p1[0] < 0:
+        x_points_diff *= -1
+    angle = math.atan((p2[1] - p1[1]) / x_points_diff)
     cos_value = math.cos(angle)
     sin_value = math.sin(angle)
     a = distance(p1, p2) / 2
-    b = radius
+    b = distance((0, 0),
+                 (radius[0] * math.cos(angle + math.pi / 2),
+                 radius[1] * math.sin(angle + math.pi / 2)))
+    if a < b:
+        a, b = b, a
+        cos_value, sin_value = -sin_value, -cos_value
     for i in range(n):
         angle = math.pi / 2 - math.atan(math.tan(math.pi / 2 * i / n) * a / b) if i != n - 1 else 0
         x = a * math.cos(angle)
@@ -128,6 +135,14 @@ def convert_real_coordinates_to_image(point: tuple[int, int], min_x: float, min_
     return (
         round((point[0] - min_x) * x_coeff),
         round((point[1] - min_y) * y_coeff)
+    )
+
+
+def convert_radius_scale_to_real(radius: float, x_coeff: float, y_coeff:float) -> tuple[float, float]:
+    radius = min(1.0, max(0.0, radius))
+    return (
+        config.MAP_IMAGE_SIZE[0] * radius / x_coeff,
+        config.MAP_IMAGE_SIZE[1] * radius / y_coeff,
     )
 
 
