@@ -1,3 +1,4 @@
+from cmath import cos
 from pyproj import Transformer
 from pymongo.cursor import Cursor
 from random import randint, choice
@@ -49,7 +50,7 @@ def rotate_point(point: tuple[float, float], cos_value: float, sin_value: float,
 
 
 def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
-                        radius: tuple[float, float], n: int) -> list[tuple[float, float]]:
+                        radius: float, n: int) -> list[tuple[float, float]]:
     quadrant1 = []
     quadrant2 = []
     quadrant3 = []
@@ -58,24 +59,28 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
     angle = math.atan(abs(p1[1] - p2[1]) / max(abs(p1[0] - p2[0]), 0.000001))
     cos_value = math.cos(angle)
     sin_value = math.sin(angle)
-    x_len = distance(p1, p2) / 2
-    y_len = radius[0]
-    quadrant1.append((
-            center[0] + x_len,
-            center[1] + y_len
-    ))
-    quadrant2.append((
-            center[0] - x_len,
-            center[1] + y_len
-    ))
-    quadrant3.append((
-            center[0] - x_len,
-            center[1] - y_len
-    ))
-    quadrant4.append((
-            center[0] + x_len,
-            center[1] - y_len
-    ))
+    a = distance(p1, p2) / 2
+    b = radius
+    for i in range(n):
+        angle = math.pi / 2 - math.atan(math.tan(math.pi / 2 * i / n) * a / b) if i != n - 1 else 0
+        x = a * math.cos(angle)
+        y = b * math.sin(angle)
+        quadrant1.insert(0, (
+                center[0] + x,
+                center[1] + y
+        ))
+        quadrant2.append((
+                center[0] - x,
+                center[1] + y
+        ))
+        quadrant3.insert(0, (
+                center[0] - x,
+                center[1] - y
+        ))
+        quadrant4.append((
+                center[0] + x,
+                center[1] - y
+        ))
     return [rotate_point(point, cos_value, sin_value, center)
             for point in quadrant1 + quadrant2 + quadrant3 + quadrant4]
 
@@ -110,5 +115,21 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
     return new_roads.values(), routes
 
 
+def convert_image_coordinates_to_real(point: tuple[int, int], min_x: float, min_y: float,
+                                      x_coeff: float, y_coeff:float) -> tuple[float, float]:
+    return (
+        point[0] / x_coeff + min_x,
+        point[1] / y_coeff + min_y
+    )
+
+
+def convert_real_coordinates_to_image(point: tuple[int, int], min_x: float, min_y: float,
+                                      x_coeff: float, y_coeff:float) -> tuple[float, float]:
+    return (
+        round((point[0] - min_x) * x_coeff),
+        round((point[1] - min_y) * y_coeff)
+    )
+
+
 def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float, y_coeff:float) -> list:
-    return [((p[0] - min_x) * x_coeff, (p[1] - min_y) * y_coeff) for p in points]
+    return [convert_real_coordinates_to_image(p, min_x, min_y, x_coeff, y_coeff) for p in points]

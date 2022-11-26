@@ -27,7 +27,7 @@ def update_image(session_id: str) -> Response:
     min_x, min_y, x_coeff, y_coeff = db_requests.get_scale_parameters(users_db, session_id)
     p1 = (300 / x_coeff + min_x, 300 / y_coeff + min_y)
     p2 = (500 / x_coeff + min_x, 500 / y_coeff + min_y)
-    r = (100 / x_coeff, 100 / y_coeff)
+    r = 50 / x_coeff
     c = 100
     polygon = utils.approximate_ellipse(p1, p2, r, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)

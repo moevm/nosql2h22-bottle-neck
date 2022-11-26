@@ -16,7 +16,7 @@ GEOINDEX_INDEX_NAME = "geo"
 FROM_EPSG = "EPSG:4326"
 TO_EPSG = "EPSG:3857"
 # TO_EPSG = "EPSG:32636"  # Saint Petersburg region
-N = 64
+N = 20
 MAX_COORDINATE = 10 ** 9
 
 # Data loading config

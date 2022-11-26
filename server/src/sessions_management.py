@@ -22,7 +22,7 @@ def generate_session(mongo: MongoClient) -> Database:
 
 
 def check_session_time(mongo: MongoClient) -> Database:
-    session_id = request.cookies.get("session_id")
+    session_id = request.cookies.get("bottle_neck_session_id")
     users_collection = mongo.get_database(config.CURRENT_USERS_DB_NAME).users_info
     if session_id is None or users_collection.find_one({"_id": session_id}) is None:
         session_id = generate_session(mongo)
@@ -35,5 +35,5 @@ def check_session_time(mongo: MongoClient) -> Database:
 def user_request(mongo: MongoClient, do_something: callable):
     session_id = check_session_time(mongo)
     resp = do_something(session_id)
-    resp.set_cookie("session_id", session_id, config.TIMEOUT)
+    resp.set_cookie("bottle_neck_session_id", session_id, config.TIMEOUT)
     return resp
