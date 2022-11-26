@@ -11,22 +11,22 @@ def create_users_db(mongo: MongoClient):
     roads = db.get_collection("roads")
     roads_indexes = roads.index_information()
     if roads_indexes.get(config.TTL_INDEX_NAME) is None:
-        res = roads.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
+        roads.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
     if roads_indexes.get(config.GEOINDEX_INDEX_NAME) is None:
-        res = roads.create_index(
+        roads.create_index(
             [("location", GEO2D)],
             min=-config.MAX_COORDINATE,
             max=config.MAX_COORDINATE,
             name=config.GEOINDEX_INDEX_NAME
         )
-    ways = db.get_collection("ways")
-    ways_indexes = ways.index_information()
-    if ways_indexes.get(config.TTL_INDEX_NAME) is None:
-        res = ways.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
+    routes = db.get_collection("routes")
+    routes_indexes = routes.index_information()
+    if routes_indexes.get(config.TTL_INDEX_NAME) is None:
+        routes.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
     users_info = db.get_collection("users_info")
     users_info_indexes = users_info.index_information()
     if users_info_indexes.get(config.TTL_INDEX_NAME) is None:
-        res = users_info.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
+        users_info.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
 
 
 def create_user_data(mongo: MongoClient, session_id: str):
@@ -67,8 +67,6 @@ def create_user_data(mongo: MongoClient, session_id: str):
                 }
             }
         )
-    # users_db.get_collection("roads").create_index([("location", GEO2D)], min=-config.MAX_COORDINATE, max=config.MAX_COORDINATE)
-    # users_db.get_collection("roads").insert_many(origin_roads)
     create_map_image(mongo.get_database(config.CURRENT_USERS_DB_NAME), session_id)
 
 

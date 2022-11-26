@@ -87,26 +87,28 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
         road["car_count"] = cars
         road["workload"] = round(cars / road["capacity"] * 10)
         new_roads[(road["_id"])] = road
-    ways = []
+    routes = []
     roads_values = list(new_roads.values())
     for _ in range(randint(0, 20)):
-        way = {
+        route = {
             "time": 0.0,
             "length": 0.0,
-            "points": []
+            "points": [],
+            "workloads": []
         }
         cur_road = roads_values[randint(0, len(new_roads) - 1)]
-        way["points"].append(cur_road["location"][0])
+        route["points"].append(cur_road["location"][0])
         for _ in range(len(new_roads) // 10):
-            way["points"].append(cur_road["location"][1])  # end
-            way["length"] += distance(cur_road["location"][0], cur_road["location"][0])
-            way["time"] += randint(10, 100) / 100
+            route["points"].append(cur_road["location"][1])  # end
+            route["workloads"].append(cur_road["workload"])
+            route["length"] += distance(cur_road["location"][0], cur_road["location"][0])
+            route["time"] += randint(10, 100) / 100
             if len(cur_road["ways"]) == 0:
                 break
             cur_road = new_roads.get(choice(cur_road["ways"]), cur_road)
-        ways.append(way)
-    return new_roads.values(), ways
+        routes.append(route)
+    return new_roads.values(), routes
 
 
-def scale_ways_points(points: list, min_x: float, min_y: float, x_coeff: float, y_coeff:float) -> list:
+def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float, y_coeff:float) -> list:
     return [((p[0] - min_x) * x_coeff, (p[1] - min_y) * y_coeff) for p in points]

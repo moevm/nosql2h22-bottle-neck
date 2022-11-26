@@ -31,7 +31,7 @@ def update_image(session_id: str) -> Response:
     c = 100
     polygon = utils.approximate_ellipse(p1, p2, r, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)
-    updated_roads, ways = utils.simulate(roads, c)
+    updated_roads, routes = utils.simulate(roads, c)
     db_requests.update_roads(users_db, updated_roads)
     db_requests.create_map_image(users_db, session_id, True)
     resp = make_response(";".join([f"({p[0]}, {p[1]})" for p in polygon]))
