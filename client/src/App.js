@@ -10,18 +10,32 @@ function App(){
     const contextRef = useRef(null);
     const [point1, point1State] = useState(null)
     const [point2, point2State] = useState(null)
+    const [image, imageState] = useState(null)
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        canvas.width = 500;
-        canvas.height = 500;
+        canvas.width = 700;
+        canvas.height = 700;
         const context = canvas.getContext("2d");
         context.lineCap = "round";
         context.strokeStyle = "blue";
         context.lineWidth = 8;
+        let image_new = new Image()
+        image_new.src = '/map_image'
+        image_new.onload = function() {
+            context.drawImage(image_new, 0, 0, 700, 700)
+        }
         contextRef.current = context;
+        imageState(image_new)
+        /*fetch('/map_image')
+            .then(response => response.blob())
+            .then(imageBlob => {
+                console.log(imageBlob)
+                const imageURL = URL.createObjectURL(imageBlob);
+                image.current.src = imageURL;
+                console.log(image.current.src)
+            })*/
     }, []);
-
     const startDrawing = ({nativeEvent}) => {
         const {offsetX, offsetY} = nativeEvent;
         console.log(offsetX, offsetY)
@@ -40,6 +54,7 @@ function App(){
             point2State([offsetX, offsetY])
         }
         console.log(point1, point2)
+
         nativeEvent.preventDefault();
     };
     function dropPoints(){
@@ -58,6 +73,7 @@ function App(){
         }
         contextRef.current.lineWidth=8
         contextRef.current.globalCompositeOperation = 'source-over';
+        contextRef.current.drawImage(image, 0, 0, 700, 700)
     }
 
     return(
@@ -77,7 +93,7 @@ function App(){
                         dropPoints()
                         }}>Очистить точки на карте</button>
                 </div>
-                <text>Количество маршрутов: {6}</text>
+                <p>Количество маршрутов: {6}</p>
                 <br/>
                 <ColorToggleButton/>
             </div>
@@ -90,6 +106,7 @@ function App(){
                                     onMouseDown={startDrawing}
                             >
                             </canvas>
+
                         </div>
                     </div>
                 </div>
