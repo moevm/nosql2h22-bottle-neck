@@ -12,7 +12,7 @@ def load_data(database):
 
     def add_ways(road):
         # Add ways to given road
-        neighbours = roads_collection.find({"start": road['end']})
+        neighbours = roads_collection.find({"location.0": road["location"][1]})
         ways = [neighbour["_id"] for neighbour in neighbours]
         roads_collection.update_one({"_id": road["_id"]}, {"$set": {"ways": ways}})
 
@@ -31,20 +31,24 @@ def load_data(database):
         node_list = way.nodes
         for i in range(1, len(node_list)):
             roads_collection.insert_one(
-                {"start": [float(node_list[i - 1].lat), float(node_list[i - 1].lon)],
-                 "end": [float(node_list[i].lat), float(node_list[i].lon)],
+                {"location": [
+                        [float(node_list[i - 1].lon), float(node_list[i - 1].lat)],
+                        [float(node_list[i].lon), float(node_list[i].lat)]
+                    ],
                  "capacity": TYPE_CAPACITY[way.tags["highway"]],
-                 "car_count": 0, "workload": 0,
+                 "car_count": 0,
                  "address": way.tags.get("name", 'n/a')}
             )
 
             # Reverse direction if present
             if way.tags.get("oneway", "no") == "no":
                 roads_collection.insert_one(
-                    {"end": [float(node_list[i - 1].lat), float(node_list[i - 1].lon)],
-                     "start": [float(node_list[i].lat), float(node_list[i].lon)],
+                    {"location": [
+                            [float(node_list[i].lon), float(node_list[i].lat)],
+                            [float(node_list[i - 1].lon), float(node_list[i - 1].lat)]
+                        ],
                      "capacity": TYPE_CAPACITY[way.tags["highway"]],
-                     "car_count": 0, "workload": 0,
+                     "car_count": 0,
                      "address": way.tags.get("name", 'n/a')}
                 )
     for current_road in roads_collection.find():

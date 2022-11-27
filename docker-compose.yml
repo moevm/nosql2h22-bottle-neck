@@ -6,11 +6,11 @@ services:
       - 8080:3000
   bottle-neck:
     build: ./server
-    volumes:
-      - ./app_data:/bottle_neck/data
+    stop_signal: SIGINT
     ports:
       - 5000:5000
   db:
     image: mongo:6.0.1
+    user: "${DUID}:${DGID}"
     volumes:
       - ./mongo_data:/data/db
