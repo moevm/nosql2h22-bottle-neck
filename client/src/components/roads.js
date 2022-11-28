@@ -30,11 +30,57 @@ export default function Roads() {
     </div>)
     function getTable(){
         let table = []
-        table.push(<tr>
-            <th>Адрес/имя</th>
-            <th>Тип дороги</th>
-            <th>Загруженнсоть</th>
-        </tr>);
-        return <table>{table}</table>
+        table.push(
+            <table>
+                <thead>
+                <tr>
+                    <th>Адрес/имя</th>
+                    <th>Тип дороги</th>
+                    <th>Загруженнсоть</th>
+                </tr>
+                </thead>
+            </table>
+        );
+        table.push(<div className="table-scroll-body">
+            <table>
+                <tbody>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr><tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>)
+        return <div className="table-scroll">{table}</div>
     }
 }

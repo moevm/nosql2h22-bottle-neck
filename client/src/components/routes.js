@@ -28,11 +28,57 @@ export default function Routes() {
     </div>)
     function getTable(){
         let table = []
-        table.push(<tr>
-            <th>№</th>
-            <th>Время</th>
-            <th>Длина</th>
-        </tr>);
-        return <table>{table}</table>
+        table.push(
+            <table>
+                <thead>
+                <tr>
+                    <th className="text-left">№</th>
+                    <th className="text-left">Время</th>
+                    <th className="text-left">Длина</th>
+                </tr>
+                </thead>
+            </table>
+        );
+        table.push(<div className="table-scroll-body">
+            <table>
+                <tbody>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr><tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                <tr>
+                    <td>Азу</td>
+                    <td>11,9</td>
+                    <td>14,2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>)
+        return <div className="table-scroll">{table}</div>
     }
 }
