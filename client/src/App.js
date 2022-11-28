@@ -10,6 +10,10 @@ function App(){
     const contextRef = useRef(null);
     const [point1, point1State] = useState(null)
     const [point2, point2State] = useState(null)
+    const countCars = useRef(null);
+    const radius = useRef(null);
+    const isRadius = useRef(null);
+    const [msg, msgState] = useState("")
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -20,9 +24,12 @@ function App(){
         context.strokeStyle = "blue";
         context.lineWidth = 8;
         contextRef.current = context;
-        getImage();
+        let image_new = new Image()
+        image_new.src = '/map_image'
+        image_new.onload = function() {
+            contextRef.current.drawImage(image_new, 0, 0, 800, 800)
+        }
     }, []);
-
     const startDrawing = ({nativeEvent}) => {
         const {offsetX, offsetY} = nativeEvent;
         console.log(offsetX, offsetY)
@@ -41,15 +48,29 @@ function App(){
             point2State([offsetX, offsetY])
         }
         console.log(point1, point2)
-
         nativeEvent.preventDefault();
     };
+    function getPoints(){
+        if(point2 != null && point1 != null){
+            console.log(point1, point2);
+            contextRef.current.beginPath();
+            contextRef.current.moveTo(point1[0], point1[1]);
+            contextRef.current.lineTo(point1[0], point1[1]);
+            contextRef.current.stroke();
+            contextRef.current.beginPath();
+            contextRef.current.moveTo(point2[0], point2[1]);
+            contextRef.current.lineTo(point2[0], point2[1]);
+            contextRef.current.stroke();
+        }
+    }
     function getImage(){
         let image_new = new Image()
         image_new.src = '/map_image'
         image_new.onload = function() {
             contextRef.current.drawImage(image_new, 0, 0, 800, 800)
+            getPoints();
         }
+        console.log("img")
     }
     function dropPoints(){
         console.log(5)
@@ -69,24 +90,54 @@ function App(){
         contextRef.current.globalCompositeOperation = 'source-over';
         getImage();
     }
+    function simulate(ev){
+        console.log(point1 == null || point2 == null)
+        if(point1 == null || point2 == null){
+            msgState("Не указаны точки маршрута");
+        }
+        else{
+            msgState("")
+            fetch("/simulate", {
+                method: 'post',
+                body: {
+                    "point1": {
+                        "x": point1[0],
+                        "y": point1[1]
+                    },
+                    "point2": {
+                        "x": point2[0],
+                        "y": point2[1]
+                    },
+                    "radius": radius.current.value,
+                    "carCount": countCars.current.value
+                }
+            }).then((responce)=>{
+                console.log(responce);
+                getImage();
+                getPoints();
+            })
+        }
 
+    }
     return(
         <div className="App">
             <div className="right">
+                <p>{msg}</p>
                 <div className="inline">
                     <InputComponent value={0} label={"Количество машин"} type={"number"}
-                                    onChange={() => console.log(1)}/>
+                                    onChange={() => console.log(1)} sRef={countCars}/>
                     <InputComponent value={false} label={"Радиус поиска маршрутов"} variant={"input"}
-                                    type={"checkbox"}/>
+                                    type={"checkbox"} sRef={isRadius}/>
 
                 </div>
-                <InputComponent value={0} type={"range"}/>
+                <InputComponent value={0} type={"range"} name={"radius"} sRef={radius}/>
                 <div className="inline">
-                    <button>Смоделировать</button>
+                    <button onClick={simulate}>Смоделировать</button>
                     <button onClick={(e)=>{
                         dropPoints()
                         }}>Очистить точки на карте</button>
                 </div>
+                <button onClick={getPoints}>a</button>
                 <p>Количество маршрутов: {6}</p>
                 <br/>
                 <ColorToggleButton/>
