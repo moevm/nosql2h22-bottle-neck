@@ -1,10 +1,9 @@
-from flask import Flask, make_response, Response
+from flask import Flask, make_response, Response, request
 from pymongo import MongoClient
 from sessions_management import user_request
 import db_requests
 import utils
 import config
-
 
 app = Flask(__name__)
 app.config.update(SECRET_KEY="sdasda")
@@ -20,6 +19,27 @@ def get_image(session_id: str) -> Response:
     resp = make_response(db_requests.get_map_image(client.get_database(config.CURRENT_USERS_DB_NAME), session_id))
     resp.headers.set("Content-Type", "image/png")
     return resp
+
+
+def get_roads(session_id: str) -> Response:
+    users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
+    return make_response((db_requests.filter_roads(users_db, session_id,
+                                                   float(request.json.get('min')),
+                                                   float(request.json.get('max')),
+                                                   request.json.get('address'), request.json.get('type')
+                                                   )
+                          ))
+
+
+def get_ways(session_id: str) -> Response:
+    users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
+    return make_response(db_requests.filter_ways(users_db, session_id,
+                                                 float(request.json.get('minTime')),
+                                                 float(request.json.get('maxTime')),
+                                                 float(request.json.get('minLength')),
+                                                 float(request.json.get('maxLength'))
+                                                 )
+                         )
 
 
 def update_image(session_id: str) -> Response:
@@ -38,6 +58,11 @@ def update_image(session_id: str) -> Response:
     return resp
 
 
+def clear_roads(session_id: str) -> Response:
+    users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
+    return make_response(db_requests.clear_roads(users_db, session_id))
+
+
 @app.route('/')
 def server():
     return user_request(client, main_page)
@@ -45,12 +70,27 @@ def server():
 
 @app.route('/map_image')
 def server_image():
-    return user_request(client, get_image)  
+    return user_request(client, get_image)
+
+
+@app.route('/roads', methods=["GET"])
+def roads():
+    return user_request(client, get_roads)
+
+
+@app.route('/ways', methods=["GET"])
+def ways():
+    return user_request(client, get_ways)
 
 
 @app.route('/simulate', methods=["POST"])
 def simulate():
     return user_request(client, update_image)
+
+
+@app.route('/clear', methods=["GET"])
+def clear():
+    return user_request(client, clear_roads)
 
 
 def on_start():

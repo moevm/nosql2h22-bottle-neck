@@ -1,6 +1,7 @@
 from datetime import datetime
 from pymongo.database import Database
 from pymongo import MongoClient, GEO2D
+from bson.json_util import dumps
 from utils import transform_roads
 import drawing
 import config
@@ -26,7 +27,8 @@ def create_users_db(mongo: MongoClient):
     users_info = db.get_collection("users_info")
     users_info_indexes = users_info.index_information()
     if users_info_indexes.get(config.TTL_INDEX_NAME) is None:
-        users_info.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
+        users_info.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()),
+                                name=config.TTL_INDEX_NAME)
 
 
 def create_user_data(mongo: MongoClient, session_id: str):
@@ -100,6 +102,38 @@ def get_roads_with_polygon(users_db: Database, session_id: str, polygon: list[tu
     })
 
 
+def filter_roads(users_db: Database, session_id: str,
+                 min_workload: float, max_workload: float,
+                 address_part: str, road_type: str):
+    return dumps(list(users_db.roads.find({
+        "user": session_id,
+        "workload": {
+            "$gte": min_workload,
+            "$lte": max_workload
+        },
+        "address": {
+            "$regex": address_part
+        },
+        "type": road_type
+    })))
+
+
+def filter_ways(users_db: Database, session_id: str,
+                min_length: float, max_length: float,
+                min_time: float, max_time: float):
+    return dumps(list(users_db.routes.find({
+        "user": session_id,
+        "length": {
+            "$gte": min_length,
+            "$lte": max_length
+        },
+        "time": {
+            "$gte": min_time,
+            "$lte": max_time,
+        }
+    })))
+
+
 def update_roads(users_db: Database, roads: list[dict]):
     roads_collection = users_db.roads
     for road in roads:
@@ -116,6 +150,12 @@ def update_roads(users_db: Database, roads: list[dict]):
             },
             upsert=True
         )
+
+
+def clear_roads(users_db: Database, session_id: str):
+    clear_request = users_db.roads.update_many({"user": session_id, "workload": {"$exists": True}},
+                                               {"$unset": {"workload": ""}})
+    return dumps({"modified_count": clear_request.modified_count})
 
 
 def get_map_image(users_db: Database, session_id: str):
