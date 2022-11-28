@@ -1,13 +1,12 @@
 from random import randbytes
 from datetime import datetime
 from pymongo import MongoClient
-from pymongo.database import Database
 from flask import request
 import db_requests
 import config
 
 
-def generate_session(mongo: MongoClient) -> Database:
+def generate_session(mongo: MongoClient) -> str:
     users_info = mongo.get_database(config.CURRENT_USERS_DB_NAME).users_info
     while True:
         session_id = randbytes(120).hex()
@@ -21,7 +20,7 @@ def generate_session(mongo: MongoClient) -> Database:
     return session_id
 
 
-def check_session_time(mongo: MongoClient) -> Database:
+def check_session_time(mongo: MongoClient) -> str:
     session_id = request.cookies.get("bottle_neck_session_id")
     users_collection = mongo.get_database(config.CURRENT_USERS_DB_NAME).users_info
     if session_id is None or users_collection.find_one({"_id": session_id}) is None:
