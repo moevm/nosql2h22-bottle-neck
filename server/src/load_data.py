@@ -37,6 +37,7 @@ def load_data(database):
                     ],
                  "capacity": TYPE_CAPACITY[way.tags["highway"]],
                  "car_count": 0,
+                 "type": way.tags["highway"],
                  "address": way.tags.get("name", 'n/a')}
             )
 
@@ -49,6 +50,7 @@ def load_data(database):
                         ],
                      "capacity": TYPE_CAPACITY[way.tags["highway"]],
                      "car_count": 0,
+                     "type": way.tags["highway"],
                      "address": way.tags.get("name", 'n/a')}
                 )
     for current_road in roads_collection.find():

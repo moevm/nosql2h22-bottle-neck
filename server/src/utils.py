@@ -4,7 +4,6 @@ from random import randint, choice
 import math
 import config
 
-
 transformer = Transformer.from_crs(config.FROM_EPSG, config.TO_EPSG, always_xy=True)
 
 
@@ -33,7 +32,8 @@ def distance(point1: tuple, point2: tuple):
     return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
 
-def rotate_point(point: tuple[float, float], cos_value: float, sin_value: float, center: tuple[float, float] = (0.0, 0.0)):
+def rotate_point(point: tuple[float, float], cos_value: float, sin_value: float,
+                 center: tuple[float, float] = (0.0, 0.0)):
     shifted_point = (
         point[0] - center[0],
         point[1] - center[1],
@@ -64,7 +64,7 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
     a = distance(p1, p2) / 2
     b = distance((0, 0),
                  (radius[0] * math.cos(angle + math.pi / 2),
-                 radius[1] * math.sin(angle + math.pi / 2)))
+                  radius[1] * math.sin(angle + math.pi / 2)))
     if a < b:
         a, b = b, a
         cos_value, sin_value = -sin_value, -cos_value
@@ -73,20 +73,20 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
         x = a * math.cos(angle)
         y = b * math.sin(angle)
         quadrant1.insert(0, (
-                center[0] + x,
-                center[1] + y
+            center[0] + x,
+            center[1] + y
         ))
         quadrant2.append((
-                center[0] - x,
-                center[1] + y
+            center[0] - x,
+            center[1] + y
         ))
         quadrant3.insert(0, (
-                center[0] - x,
-                center[1] - y
+            center[0] - x,
+            center[1] - y
         ))
         quadrant4.append((
-                center[0] + x,
-                center[1] - y
+            center[0] + x,
+            center[1] - y
         ))
     return [rotate_point(point, cos_value, sin_value, center)
             for point in quadrant1 + quadrant2 + quadrant3 + quadrant4]
@@ -113,7 +113,7 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
         for _ in range(len(new_roads) // 10):
             route["points"].append(cur_road["location"][1])  # end
             route["workloads"].append(cur_road["workload"])
-            route["length"] += distance(cur_road["location"][0], cur_road["location"][0])
+            route["length"] += distance(cur_road["location"][0], cur_road["location"][1])
             route["time"] += randint(10, 100) / 100
             if len(cur_road["ways"]) == 0:
                 break
@@ -123,7 +123,7 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
 
 
 def convert_image_coordinates_to_real(point: tuple[int, int], min_x: float, min_y: float,
-                                      x_coeff: float, y_coeff:float) -> tuple[float, float]:
+                                      x_coeff: float, y_coeff: float) -> tuple[float, float]:
     return (
         point[0] / x_coeff + min_x,
         point[1] / y_coeff + min_y
@@ -131,14 +131,14 @@ def convert_image_coordinates_to_real(point: tuple[int, int], min_x: float, min_
 
 
 def convert_real_coordinates_to_image(point: tuple[int, int], min_x: float, min_y: float,
-                                      x_coeff: float, y_coeff:float) -> tuple[float, float]:
+                                      x_coeff: float, y_coeff: float) -> tuple[float, float]:
     return (
         round((point[0] - min_x) * x_coeff),
         round((point[1] - min_y) * y_coeff)
     )
 
 
-def convert_radius_scale_to_real(radius: float, x_coeff: float, y_coeff:float) -> tuple[float, float]:
+def convert_radius_scale_to_real(radius: float, x_coeff: float, y_coeff: float) -> tuple[float, float]:
     radius = min(1.0, max(0.0, radius))
     return (
         config.MAP_IMAGE_SIZE[0] * radius / x_coeff,
@@ -146,5 +146,16 @@ def convert_radius_scale_to_real(radius: float, x_coeff: float, y_coeff:float) -
     )
 
 
-def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float, y_coeff:float) -> list:
+def scale_roads(roads: list, min_x: float, min_y: float, x_coeff: float, y_coeff: float) -> list:
+    for road in roads:
+        road["location"][0] = convert_real_coordinates_to_image(road["location"][0], min_x, min_y, x_coeff, y_coeff)
+        road["location"][1] = convert_real_coordinates_to_image(road["location"][1], min_x, min_y, x_coeff, y_coeff)
+
+
+def scale_routes(routes: list, min_x: float, min_y: float, x_coeff: float, y_coeff: float) -> list:
+    for route in routes:
+        route['points'] = scale_routes_points(route['points'], min_x, min_y, x_coeff, y_coeff)
+
+
+def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float, y_coeff: float) -> list:
     return [convert_real_coordinates_to_image(p, min_x, min_y, x_coeff, y_coeff) for p in points]
