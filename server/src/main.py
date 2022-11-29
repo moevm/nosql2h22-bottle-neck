@@ -23,12 +23,12 @@ def get_image(session_id: str) -> Response:
 
 def get_roads(session_id: str) -> Response:
     users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
-    return make_response(db_requests.filter_roads(users_db, session_id, request.json))
+    return make_response(db_requests.filter_roads(users_db, session_id, request.args))
 
 
 def get_ways(session_id: str) -> Response:
     users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
-    return make_response(db_requests.filter_ways(users_db, session_id, request.json))
+    return make_response(db_requests.filter_ways(users_db, session_id, request.args))
 
 
 def update_image(session_id: str) -> Response:

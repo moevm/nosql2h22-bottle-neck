@@ -102,12 +102,12 @@ def get_roads_with_polygon(users_db: Database, session_id: str, polygon: list[tu
     })
 
 
-def filter_roads(users_db: Database, session_id: str, json_request: dict):
-    # Transform json request to mongo request
+def filter_roads(users_db: Database, session_id: str, request_args: dict):
+    # Transform get request args to mongo query
     filter_request = {"user": session_id}
 
-    min_workload = json_request.get("min")
-    max_workload = json_request.get("max")
+    min_workload = request_args.get("min")
+    max_workload = request_args.get("max")
     if min_workload is not None or max_workload is not None:
         filter_request["workload"] = {}
     if min_workload is not None:
@@ -115,11 +115,11 @@ def filter_roads(users_db: Database, session_id: str, json_request: dict):
     if max_workload is not None:
         filter_request["workload"]["$lte"] = float(max_workload)
 
-    address = json_request.get("address")
+    address = request_args.get("address")
     if address is not None:
         filter_request["address"] = {"$regex": address}
 
-    road_type = json_request.get("type")
+    road_type = request_args.get("type")
     if road_type is not None:
         filter_request["type"] = road_type
 
@@ -132,11 +132,11 @@ def filter_roads(users_db: Database, session_id: str, json_request: dict):
     return dumps(filtered_roads)
 
 
-def filter_ways(users_db: Database, session_id: str, json_request: dict):
-    # Transform json request to mongo request
+def filter_ways(users_db: Database, session_id: str, request_args: dict):
+    # Transform get request args to mongo query
     filter_request = {"user": session_id}
-    min_length = json_request.get("minLength")
-    max_length = json_request.get("maxLength")
+    min_length = request_args.get("minLength")
+    max_length = request_args.get("maxLength")
     if min_length is not None or max_length is not None:
         filter_request["length"] = {}
     if min_length is not None:
@@ -144,8 +144,8 @@ def filter_ways(users_db: Database, session_id: str, json_request: dict):
     if max_length is not None:
         filter_request["length"]["$lte"] = float(max_length)
 
-    min_time = json_request.get("minTime")
-    max_time = json_request.get("maxTime")
+    min_time = request_args.get("minTime")
+    max_time = request_args.get("maxTime")
     if min_time is not None or max_time is not None:
         filter_request["time"] = {}
     if min_time is not None:
