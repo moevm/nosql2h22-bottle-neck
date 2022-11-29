@@ -102,36 +102,52 @@ def get_roads_with_polygon(users_db: Database, session_id: str, polygon: list[tu
     })
 
 
-def filter_roads(users_db: Database, session_id: str,
-                 min_workload: float, max_workload: float,
-                 address_part: str, road_type: str):
-    return dumps(list(users_db.roads.find({
-        "user": session_id,
-        "workload": {
-            "$gte": min_workload,
-            "$lte": max_workload
-        },
-        "address": {
-            "$regex": address_part
-        },
-        "type": road_type
-    })))
+def filter_roads(users_db: Database, session_id: str, json_request: dict):
+    # Transform json request to mongo request
+    filter_request = {"user": session_id}
+
+    min_workload = json_request.get("min")
+    max_workload = json_request.get("max")
+    if min_workload is not None or max_workload is not None:
+        filter_request["workload"] = {}
+    if min_workload is not None:
+        filter_request["workload"]["$gte"] = float(min_workload)
+    if max_workload is not None:
+        filter_request["workload"]["$lte"] = float(max_workload)
+
+    address = json_request.get("address")
+    if address is not None:
+        filter_request["address"] = {"$regex": address}
+
+    road_type = json_request.get("type")
+    if road_type is not None:
+        filter_request["type"] = road_type
+
+    return dumps(users_db.roads.find(filter_request))
 
 
-def filter_ways(users_db: Database, session_id: str,
-                min_length: float, max_length: float,
-                min_time: float, max_time: float):
-    return dumps(list(users_db.routes.find({
-        "user": session_id,
-        "length": {
-            "$gte": min_length,
-            "$lte": max_length
-        },
-        "time": {
-            "$gte": min_time,
-            "$lte": max_time,
-        }
-    })))
+def filter_ways(users_db: Database, session_id: str, json_request: dict):
+    # Transform json request to mongo request
+    filter_request = {"user": session_id}
+    min_length = json_request.get("minLength")
+    max_length = json_request.get("maxLength")
+    if min_length is not None or max_length is not None:
+        filter_request["length"] = {}
+    if min_length is not None:
+        filter_request["length"]["$gte"] = float(min_length)
+    if max_length is not None:
+        filter_request["length"]["$lte"] = float(max_length)
+
+    min_time = json_request.get("minTime")
+    max_time = json_request.get("maxTime")
+    if min_time is not None or max_time is not None:
+        filter_request["time"] = {}
+    if min_time is not None:
+        filter_request["time"]["$gte"] = float(min_time)
+    if max_time is not None:
+        filter_request["time"]["$lte"] = float(max_time)
+
+    return dumps(users_db.routes.find(filter_request))
 
 
 def update_roads(users_db: Database, roads: list[dict]):
@@ -152,10 +168,18 @@ def update_roads(users_db: Database, roads: list[dict]):
         )
 
 
-def clear_roads(users_db: Database, session_id: str):
-    clear_request = users_db.roads.update_many({"user": session_id, "workload": {"$exists": True}},
-                                               {"$unset": {"workload": ""}})
-    return dumps({"modified_count": clear_request.modified_count})
+def insert_routes(users_db: Database, session_id: str, routes: list[dict]):
+    for route in routes:
+        route["user"] = session_id
+    return dumps({"acknowledged": users_db.routes.insert_many(routes).acknowledged})
+
+
+def clear_data(users_db: Database, session_id: str):
+    clear_roads_request = users_db.roads.update_many({"user": session_id, "workload": {"$exists": True}},
+                                                     {"$unset": {"workload": ""}})
+    users_db.routes.drop()
+    return dumps({"modified_roads_count": clear_roads_request.modified_count,
+                  "routes_dropped": True})
 
 
 def get_map_image(users_db: Database, session_id: str):
