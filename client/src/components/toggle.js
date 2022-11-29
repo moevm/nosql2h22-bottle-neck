@@ -4,17 +4,17 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Roads from "./roads";
 import Routes from "./routes";
 
-export default function ColorToggleButton({typeRoads, address, minWorkload, maxWorkload, minLenght, maxLenght, minTime, maxTime, filterRoads, filterRoutes}) {
+export default function ColorToggleButton({typeRoads, address, minWorkload, maxWorkload, minLenght, maxLenght, minTime, maxTime, filterRoads, filterRoutes, dataRoads, dataRoutes}) {
   const [alignment, setAlignment] = React.useState('Дороги');
   const handleChange = (event, newAlignment) => {
     setAlignment(newAlignment);
   };
   function getIndormation(){
     if(alignment === 'Дороги'){
-      return (<Roads address={address} typeRoads={typeRoads} minWorkload={minWorkload} maxWorkload={maxWorkload} filter={filterRoads}/>)
+      return (<Roads data={dataRoads} address={address} typeRoads={typeRoads} minWorkload={minWorkload} maxWorkload={maxWorkload} filter={filterRoads}/>)
     }
     else if(alignment === 'Маршруты'){
-      return (<Routes minLRef={minLenght} maxLRef={maxLenght} minTRef={minTime} maxTRef={maxTime} filter={filterRoutes}/>)
+      return (<Routes data={dataRoutes} minLRef={minLenght} maxLRef={maxLenght} minTRef={minTime} maxTRef={maxTime} filter={filterRoutes}/>)
     }
   }
   return (

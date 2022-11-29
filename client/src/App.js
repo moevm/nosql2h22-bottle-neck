@@ -10,6 +10,8 @@ function App(){
     const contextRef = useRef(null);
     const [point1, point1State] = useState(null)
     const [point2, point2State] = useState(null)
+    const [dataRoads, dataRoadsState] = useState(null)
+    const [dataRoutes, dataRoutesState] = useState(null)
     const countCars = useRef(null);
     const radius = useRef(null);
     const isRadius = useRef(null);
@@ -97,17 +99,58 @@ function App(){
         contextRef.current.globalCompositeOperation = 'source-over';
         getImage();
     }
+    function getRoads(){
+        fetch('/roads').then(response=>response.json())
+            .then(json => dataRoadsState(json))
+    }
+    function getRoutes(){
+        fetch('/routes').then(response=>response.json())
+            .then(json => dataRoutesState(json))
+    }
+    //+ new URLSearchParams({
+    //     foo: 'value',
+    //     bar: 2,
+    // })
     function filterRoads(ev){
         console.log(address.current.value)
         console.log(minWorkload.current.value)
         console.log(maxWorkload.current.value)
         console.log(typeRoads.current.value)
+        if(minWorkload.current.value > maxWorkload.current.value){
+            msgState("min загруженость > max загруженость")
+        }
+        else{
+            msgState("")
+            fetch('/roads'+new URLSearchParams({
+                min: minWorkload.current.value,
+                max: maxWorkload.current.value,
+                address: address.current.value,
+                type: typeRoads.current.value
+                 })).then(response=>response.json())
+                .then(json => dataRoadsState(json))
+        }
     }
     function filterRoutes(ev){
         console.log(minLenght.current.value)
         console.log(maxLenght.current.value)
         console.log(minTime.current.value)
         console.log(maxTime.current.value)
+        if(minLenght.current.value > maxLenght.current.value){
+            msgState("min длина > max длины")
+        }
+        else if(minTime.current.value > maxTime.current.value){
+            msgState("min время > max времени")
+        }
+        else{
+            msgState("")
+            fetch('/routes'+new URLSearchParams({
+                minTime: minTime.current.value,
+                maxTime: maxTime.current.value,
+                minLength: minLenght.current.value,
+                maxLength: maxLenght.current.value
+            })).then(response=>response.json())
+                .then(json => dataRoutesState(json))
+        }
     }
     function simulate(ev){
         console.log(point1 == null || point2 == null)
@@ -128,12 +171,14 @@ function App(){
                         "y": point2[1]
                     },
                     "radius": radius.current.value,
-                    "carCount": countCars.current.value
+                    "car_count": countCars.current.value
                 }
             }).then((responce)=>{
                 console.log(responce);
                 getImage();
                 getPoints();
+                getRoads();
+                getRoutes();
             })
         }
 
@@ -156,10 +201,9 @@ function App(){
                         dropPoints()
                         }}>Очистить точки на карте</button>
                 </div>
-                <button onClick={getPoints}>a</button>
                 <p>Количество маршрутов: {6}</p>
                 <br/>
-                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes}/>
+                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes}/>
             </div>
             <div align="center">
                 <div class="table">

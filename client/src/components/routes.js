@@ -1,6 +1,6 @@
 import * as React from 'react';
 import InputComponent from "./inputComponent";
-export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter}) {
+export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data}) {
     return (<div>
         <div class='inline'>
             <div>
@@ -39,46 +39,17 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter}) {
                 </thead>
             </table>
         );
-        table.push(<div className="table-scroll-body">
-            <table>
-                <tbody>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr><tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>)
+        if(data != null){
+            let content = []
+            for(let i = 0; i < data.length; i++){
+                content.push(<tr>
+                    <td>{i + 1}</td>
+                    <td>{data[i].length}</td>
+                    <td>{data[i].time}</td>
+                </tr>)
+            }
+            table.push(<div className="table-scroll-body"><table><tbody>{content}</tbody></table></div>)
+        }
         return <div className="table-scroll">{table}</div>
     }
 }

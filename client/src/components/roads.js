@@ -3,7 +3,7 @@ import InputComponent from "./inputComponent";
 
 import 'react-dropdown/style.css';
 
-export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter}) {
+export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter, data}) {
     const getInitialState = () => {
         const value = "Тип дорог";
         return value;
@@ -51,46 +51,17 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
                 </thead>
             </table>
         );
-        table.push(<div className="table-scroll-body">
-            <table>
-                <tbody>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr><tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                <tr>
-                    <td>Азу</td>
-                    <td>11,9</td>
-                    <td>14,2</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>)
+        if(data != null){
+            let content = []
+            for(let i = 0; i < data.length; i++){
+                content.push(<tr>
+                    <td>{data[i].address}</td>
+                    <td>{Number(1+Math.random()*10)}</td>
+                    <td>{data[i].workload}</td>
+                </tr>)
+            }
+            table.push(<div className="table-scroll-body"><table><tbody>{content}</tbody></table></div>)
+        }
         return <div className="table-scroll">{table}</div>
     }
 }
