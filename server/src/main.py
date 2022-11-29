@@ -23,23 +23,12 @@ def get_image(session_id: str) -> Response:
 
 def get_roads(session_id: str) -> Response:
     users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
-    return make_response((db_requests.filter_roads(users_db, session_id,
-                                                   float(request.json.get('min')),
-                                                   float(request.json.get('max')),
-                                                   request.json.get('address'), request.json.get('type')
-                                                   )
-                          ))
+    return make_response(db_requests.filter_roads(users_db, session_id, request.json))
 
 
 def get_ways(session_id: str) -> Response:
     users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
-    return make_response(db_requests.filter_ways(users_db, session_id,
-                                                 float(request.json.get('minTime')),
-                                                 float(request.json.get('maxTime')),
-                                                 float(request.json.get('minLength')),
-                                                 float(request.json.get('maxLength'))
-                                                 )
-                         )
+    return make_response(db_requests.filter_ways(users_db, session_id, request.json))
 
 
 def update_image(session_id: str) -> Response:
@@ -53,14 +42,15 @@ def update_image(session_id: str) -> Response:
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)
     updated_roads, routes = utils.simulate(roads, c)
     db_requests.update_roads(users_db, updated_roads)
+    db_requests.insert_routes(users_db, session_id, routes)
     db_requests.create_map_image(users_db, session_id, True)
     resp = make_response(";".join([f"({p[0]}, {p[1]})" for p in polygon]))
     return resp
 
 
-def clear_roads(session_id: str) -> Response:
+def clear_data(session_id: str) -> Response:
     users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
-    return make_response(db_requests.clear_roads(users_db, session_id))
+    return make_response(db_requests.clear_data(users_db, session_id))
 
 
 @app.route('/')
@@ -90,7 +80,7 @@ def simulate():
 
 @app.route('/clear', methods=["GET"])
 def clear():
-    return user_request(client, clear_roads)
+    return user_request(client, clear_data)
 
 
 def on_start():
