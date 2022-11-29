@@ -1,7 +1,8 @@
 from datetime import datetime
 from pymongo.database import Database
 from pymongo import MongoClient, GEO2D
-from utils import transform_roads
+from bson.json_util import dumps
+from utils import transform_roads, scale_roads, scale_routes
 import drawing
 import config
 
@@ -26,7 +27,8 @@ def create_users_db(mongo: MongoClient):
     users_info = db.get_collection("users_info")
     users_info_indexes = users_info.index_information()
     if users_info_indexes.get(config.TTL_INDEX_NAME) is None:
-        users_info.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()), name=config.TTL_INDEX_NAME)
+        users_info.create_index("date", expireAfterSeconds=int(config.TIMEOUT.total_seconds()),
+                                name=config.TTL_INDEX_NAME)
 
 
 def create_user_data(mongo: MongoClient, session_id: str):
@@ -100,6 +102,65 @@ def get_roads_with_polygon(users_db: Database, session_id: str, polygon: list[tu
     })
 
 
+def filter_roads(users_db: Database, session_id: str, json_request: dict):
+    # Transform json request to mongo request
+    filter_request = {"user": session_id}
+
+    min_workload = json_request.get("min")
+    max_workload = json_request.get("max")
+    if min_workload is not None or max_workload is not None:
+        filter_request["workload"] = {}
+    if min_workload is not None:
+        filter_request["workload"]["$gte"] = float(min_workload)
+    if max_workload is not None:
+        filter_request["workload"]["$lte"] = float(max_workload)
+
+    address = json_request.get("address")
+    if address is not None:
+        filter_request["address"] = {"$regex": address}
+
+    road_type = json_request.get("type")
+    if road_type is not None:
+        filter_request["type"] = road_type
+
+    filtered_roads = users_db.roads.find(filter_request)
+
+    # Scale roads coordinates to map image
+    min_x, min_y, x_coeff, y_coeff = get_scale_parameters(users_db, session_id)
+    filtered_roads = list(filtered_roads)
+    scale_roads(list(filtered_roads), min_x, min_y, x_coeff, y_coeff)
+    return dumps(filtered_roads)
+
+
+def filter_ways(users_db: Database, session_id: str, json_request: dict):
+    # Transform json request to mongo request
+    filter_request = {"user": session_id}
+    min_length = json_request.get("minLength")
+    max_length = json_request.get("maxLength")
+    if min_length is not None or max_length is not None:
+        filter_request["length"] = {}
+    if min_length is not None:
+        filter_request["length"]["$gte"] = float(min_length)
+    if max_length is not None:
+        filter_request["length"]["$lte"] = float(max_length)
+
+    min_time = json_request.get("minTime")
+    max_time = json_request.get("maxTime")
+    if min_time is not None or max_time is not None:
+        filter_request["time"] = {}
+    if min_time is not None:
+        filter_request["time"]["$gte"] = float(min_time)
+    if max_time is not None:
+        filter_request["time"]["$lte"] = float(max_time)
+
+    filtered_routes = users_db.routes.find(filter_request)
+    # Scale routes coordinates to map image
+    min_x, min_y, x_coeff, y_coeff = get_scale_parameters(users_db, session_id)
+    filtered_routes = list(filtered_routes)
+    scale_routes(filtered_routes, min_x, min_y, x_coeff, y_coeff)
+    return dumps(filtered_routes)
+
+
 def update_roads(users_db: Database, roads: list[dict]):
     roads_collection = users_db.roads
     for road in roads:
@@ -116,6 +177,20 @@ def update_roads(users_db: Database, roads: list[dict]):
             },
             upsert=True
         )
+
+
+def insert_routes(users_db: Database, session_id: str, routes: list[dict]):
+    for route in routes:
+        route["user"] = session_id
+    return dumps({"acknowledged": users_db.routes.insert_many(routes).acknowledged})
+
+
+def clear_data(users_db: Database, session_id: str):
+    clear_roads_request = users_db.roads.update_many({"user": session_id, "workload": {"$exists": True}},
+                                                     {"$unset": {"workload": ""}})
+    users_db.routes.drop()
+    return dumps({"modified_roads_count": clear_roads_request.modified_count,
+                  "routes_dropped": True})
 
 
 def get_map_image(users_db: Database, session_id: str):
