@@ -72,7 +72,7 @@ def roads():
     return user_request(client, get_roads)
 
 
-@app.route('/ways', methods=["GET"])
+@app.route('/routes', methods=["GET"])
 def ways():
     return user_request(client, get_ways)
 
