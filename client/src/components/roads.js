@@ -1,27 +1,37 @@
 import * as React from 'react';
 import InputComponent from "./inputComponent";
-import Dropdown from 'react-dropdown';
+
 import 'react-dropdown/style.css';
 
-export default function Roads() {
-    const options = [
-        'Тип дорог','Перекресток', 'Проспект', 'Улица'
-    ];
-    const defaultOption = options[0];
+export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter}) {
+    const getInitialState = () => {
+        const value = "Тип дорог";
+        return value;
+    };
+    const [value, setValue] = React.useState(getInitialState);
+
+    const handleChange = (e) => {
+        setValue(e.target.value);
+    };
     return (<div>
-        <InputComponent label={"Адрес/имя"} type={"text"} value={"Введите что-то"}/>
-        <Dropdown options={options}  value={defaultOption} placeholder="Select an option" />
+        <InputComponent label={"Адрес/имя"} type={"text"} value={"Введите что-то"} sRef={address}/>
+        <select value={value} ref={typeRoads} onChange={handleChange}>
+            <option value="Тип дорог">Тип дорог</option>
+            <option value="Перекресток">Перекресток</option>
+            <option value="Улица">Улица</option>
+            <option value="Проспект">Проспект</option>
+        </select>
         <div class="inline">
             <div>
             Диапазон загруженности
                 <div class="inline">
                     <InputComponent label={"Min"} type={"Number"}
-                        onChange={() => console.log(1)}/>
+                        onChange={() => console.log(1)} sRef={minWorkload}/>
                     <InputComponent label={"Max"} type={"Number"}
-                        onChange={() => console.log(1)}/>
+                        onChange={() => console.log(1)} sRef={maxWorkload}/>
                 </div>
             </div>
-            <button>Отфильтровать</button>
+            <button onClick={filter}>Отфильтровать</button>
         </div>
         <p></p>
         <div >

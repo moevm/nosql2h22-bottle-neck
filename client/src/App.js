@@ -14,7 +14,14 @@ function App(){
     const radius = useRef(null);
     const isRadius = useRef(null);
     const [msg, msgState] = useState("")
-
+    const typeRoads = useRef(null)
+    const address =useRef(null)
+    const minWorkload = useRef(null)
+    const maxWorkload = useRef(null)
+    const minLenght = useRef(null)
+    const maxLenght = useRef(null)
+    const minTime = useRef(null)
+    const maxTime = useRef(null)
     useEffect(() => {
         const canvas = canvasRef.current;
         canvas.width = 800;
@@ -90,6 +97,18 @@ function App(){
         contextRef.current.globalCompositeOperation = 'source-over';
         getImage();
     }
+    function filterRoads(ev){
+        console.log(address.current.value)
+        console.log(minWorkload.current.value)
+        console.log(maxWorkload.current.value)
+        console.log(typeRoads.current.value)
+    }
+    function filterRoutes(ev){
+        console.log(minLenght.current.value)
+        console.log(maxLenght.current.value)
+        console.log(minTime.current.value)
+        console.log(maxTime.current.value)
+    }
     function simulate(ev){
         console.log(point1 == null || point2 == null)
         if(point1 == null || point2 == null){
@@ -140,7 +159,7 @@ function App(){
                 <button onClick={getPoints}>a</button>
                 <p>Количество маршрутов: {6}</p>
                 <br/>
-                <ColorToggleButton/>
+                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes}/>
             </div>
             <div align="center">
                 <div class="table">
