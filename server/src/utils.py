@@ -113,7 +113,7 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
         for _ in range(len(new_roads) // 10):
             route["points"].append(cur_road["location"][1])  # end
             route["workloads"].append(cur_road["workload"])
-            route["length"] += distance(cur_road["location"][0], cur_road["location"][0])
+            route["length"] += distance(cur_road["location"][0], cur_road["location"][1])
             route["time"] += randint(10, 100) / 100
             if len(cur_road["ways"]) == 0:
                 break
