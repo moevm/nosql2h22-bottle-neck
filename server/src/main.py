@@ -34,13 +34,17 @@ def get_ways(session_id: str) -> Response:
 def update_image(session_id: str) -> Response:
     users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
     min_x, min_y, x_coeff, y_coeff = db_requests.get_scale_parameters(users_db, session_id)
-    p1 = (300 / x_coeff + min_x, 300 / y_coeff + min_y)
-    p2 = (500 / x_coeff + min_x, 500 / y_coeff + min_y)
-    r = utils.convert_radius_scale_to_real(0.5, x_coeff, y_coeff)
-    c = 100
-    polygon = utils.approximate_ellipse(p1, p2, r, config.N)
+
+    data = request.get_json()
+    point1 = (data['point1']['x'] / x_coeff + min_x, data['point1']['y'] / y_coeff + min_y)
+    point2 = (data['point2']['x'] / x_coeff + min_x, data['point2']['y'] / y_coeff + min_y)
+    radius = data['radius']
+    radius = utils.convert_radius_scale_to_real(radius, x_coeff, y_coeff)
+    car_count = data['car_count']
+
+    polygon = utils.approximate_ellipse(point1, point2, radius, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)
-    updated_roads, routes = utils.simulate(roads, c)
+    updated_roads, routes = utils.simulate(roads, car_count)
     db_requests.update_roads(users_db, updated_roads)
     db_requests.insert_routes(users_db, session_id, routes)
     db_requests.create_map_image(users_db, session_id, True)
