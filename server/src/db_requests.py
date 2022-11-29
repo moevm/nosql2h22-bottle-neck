@@ -2,7 +2,7 @@ from datetime import datetime
 from pymongo.database import Database
 from pymongo import MongoClient, GEO2D
 from bson.json_util import dumps
-from utils import transform_roads
+from utils import transform_roads, scale_roads, scale_routes
 import drawing
 import config
 
@@ -123,7 +123,13 @@ def filter_roads(users_db: Database, session_id: str, json_request: dict):
     if road_type is not None:
         filter_request["type"] = road_type
 
-    return dumps(users_db.roads.find(filter_request))
+    filtered_roads = users_db.roads.find(filter_request)
+
+    # Scale roads coordinates to map image
+    min_x, min_y, x_coeff, y_coeff = get_scale_parameters(users_db, session_id)
+    filtered_roads = list(filtered_roads)
+    scale_roads(list(filtered_roads), min_x, min_y, x_coeff, y_coeff)
+    return dumps(filtered_roads)
 
 
 def filter_ways(users_db: Database, session_id: str, json_request: dict):
@@ -147,7 +153,12 @@ def filter_ways(users_db: Database, session_id: str, json_request: dict):
     if max_time is not None:
         filter_request["time"]["$lte"] = float(max_time)
 
-    return dumps(users_db.routes.find(filter_request))
+    filtered_routes = users_db.routes.find(filter_request)
+    # Scale routes coordinates to map image
+    min_x, min_y, x_coeff, y_coeff = get_scale_parameters(users_db, session_id)
+    filtered_routes = list(filtered_routes)
+    scale_routes(filtered_routes, min_x, min_y, x_coeff, y_coeff)
+    return dumps(filtered_routes)
 
 
 def update_roads(users_db: Database, roads: list[dict]):
