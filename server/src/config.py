@@ -1,3 +1,27 @@
+import datetime
+
+# Server settings
+TIMEOUT = datetime.timedelta(days=1)
+PORT = 5000
+MONGO_PORT = 27017
+
+# Database names
+CURRENT_USERS_DB_NAME = "current_data"
+ORIGIN_DB_NAME = "origin_data"  # Origin database name
+TTL_INDEX_NAME = "ttl"
+GEOINDEX_INDEX_NAME = "geo"
+
+# Drawing settings
+MAP_IMAGE_SIZE = (800, 800)  # in pixels
+MAP_IMAGE_MARGIN = 15  # in pixels
+
+# GeoCoordinates
+FROM_EPSG = "EPSG:4326"
+TO_EPSG = "EPSG:3857"
+# TO_EPSG = "EPSG:32636"  # Saint Petersburg region
+N = 100
+MAX_COORDINATE = 10 ** 9
+
 # Data loading config
 # Area for loading
 AREA_POLYGON = \
@@ -23,5 +47,3 @@ TYPE_CAPACITY = {
     'tertiary': 3,
     'secondary_link': 5
 }
-# Origin database name
-ORIGIN_DB_NAME = "origin_data"

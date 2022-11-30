@@ -4,13 +4,17 @@
 
 * docker-compose. [Installation](https://docs.docker.com/compose/install/)
 
-## Build docker image
+## Data loading
+
+Before using it is necessary to download data, use script `./load_data.sh`
+
+## Build docker images
 
 `docker-compose build`
 
 ## Run containers
 
-`docker-compose up`
+`./run.sh`
 
 The application is available at `http://localhost:8080`
 

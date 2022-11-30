@@ -1,14 +1,8 @@
 version: "3"
 services:
-  web-client:
-    build: ./client
-    ports:
-      - 8080:3000
   bottle-neck:
     build: ./server
-    stop_signal: SIGINT
-    ports:
-      - 5000:5000
+    entrypoint: ./load_data.sh
   db:
     image: mongo:6.0.1
     user: "${DUID}:${DGID}"
