@@ -56,7 +56,7 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
             for(let i = 0; i < data.length; i++){
                 content.push(<tr>
                     <td>{data[i].address}</td>
-                    <td>{Number(1+Math.random()*10)}</td>
+                    <td>{data[i].type}</td>
                     <td>{data[i].workload}</td>
                 </tr>)
             }

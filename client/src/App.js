@@ -26,8 +26,8 @@ function App(){
     const maxTime = useRef(null)
     useEffect(() => {
         const canvas = canvasRef.current;
-        canvas.width = 800;
-        canvas.height = 800;
+        canvas.width = 830;
+        canvas.height = 830;
         const context = canvas.getContext("2d");
         context.lineCap = "round";
         context.strokeStyle = "blue";
@@ -36,7 +36,7 @@ function App(){
         let image_new = new Image()
         image_new.src = '/map_image'
         image_new.onload = function() {
-            contextRef.current.drawImage(image_new, 0, 0, 800, 800)
+            contextRef.current.drawImage(image_new, 0, 0, 830, 830)
         }
     }, []);
     const startDrawing = ({nativeEvent}) => {
@@ -72,12 +72,15 @@ function App(){
             contextRef.current.stroke();
         }
     }
-    function getImage(){
+    function getImage(flag = true){
         let image_new = new Image()
         image_new.src = '/map_image?' + new Date().getTime()
         image_new.onload = function() {
-            contextRef.current.drawImage(image_new, 0, 0, 800, 800)
-            getPoints();
+            contextRef.current.drawImage(image_new, 0, 0, 830, 830)
+            if(flag){
+                getPoints();
+                console.log(flag, '2')
+            }
         }
         console.log("img")
     }
@@ -97,7 +100,7 @@ function App(){
         }
         contextRef.current.lineWidth=8
         contextRef.current.globalCompositeOperation = 'source-over';
-        getImage();
+        getImage(false);
     }
     function getRoads(){
         fetch('/roads').then(response=>response.json())
@@ -129,6 +132,7 @@ function App(){
                  })).then(response=>response.json())
                 .then(json => dataRoadsState(json))
         }
+        ev.preventDefault();
     }
     function filterRoutes(ev){
         console.log(minLenght.current.value)
@@ -151,14 +155,19 @@ function App(){
             })).then(response=>response.json())
                 .then(json => dataRoutesState(json))
         }
+        ev.preventDefault();
     }
     function simulate(ev){
+        ev.preventDefault()
+        console.log( point1[0], point1[1], point2[0], point2[1], radius.current.value,countCars.current.value)
+        console.log('ee');
         console.log(point1 == null || point2 == null)
         if(point1 == null || point2 == null){
             msgState("Не указаны точки маршрута");
         }
         else{
             msgState("")
+            console.log(2, 'radius.current.value',Number(radius.current.value)/1000)
             fetch("/simulate", {
                 method: 'POST',
                 headers: {
@@ -174,7 +183,7 @@ function App(){
                         "x": point2[0],
                         "y": point2[1]
                     },
-                    "radius": radius.current.value,
+                    "radius": Number(radius.current.value)/1000,
                     "car_count": countCars.current.value
                 })
             }).then((responce)=>{
@@ -187,6 +196,12 @@ function App(){
         }
 
     }
+    function getCountRoutes(){
+        if(dataRoutes == null){
+            return (<p>Количество маршрутов: {0}</p>)
+        }
+        return (<p>Количество маршрутов: {dataRoutes.length}</p>)
+    }
     return(
         <div className="App">
             <div className="right">
@@ -198,7 +213,7 @@ function App(){
                                     type={"checkbox"} sRef={isRadius}/>
 
                 </div>
-                <InputComponent value={0} type={"range"} name={"radius"} sRef={radius}/>
+                <input min={1} max={1000} step={1} type={"range"} name={"radius"} ref={radius}/>
                 <div className="inline">
                     <button onClick={simulate}>Смоделировать</button>
                     <button onClick={(e)=>{
@@ -206,10 +221,12 @@ function App(){
                             method: "DELETE"
                         }).then((response) =>{
                             dropPoints()
+                            dataRoutesState(null);
+                            dataRoadsState(null);
                         })
                         }}>Очистить точки на карте</button>
                 </div>
-                <p>Количество маршрутов: {6}</p>
+                {getCountRoutes()}
                 <br/>
                 <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes}/>
             </div>
