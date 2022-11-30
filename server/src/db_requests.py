@@ -190,7 +190,8 @@ def insert_routes(users_db: Database, session_id: str, routes: list[dict]):
 def clear_data(users_db: Database, session_id: str):
     clear_roads_request = users_db.roads.update_many({"user": session_id, "workload": {"$exists": True}},
                                                      {"$unset": {"workload": ""}})
-    users_db.routes.drop()
+    users_db.routes.delete_many({"user": session_id})
+    create_map_image(users_db, session_id)
     return dumps({"modified_roads_count": clear_roads_request.modified_count,
                   "routes_dropped": True})
 

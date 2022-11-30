@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, make_response, Response, request
 from pymongo import MongoClient
 from sessions_management import user_request
@@ -36,10 +37,13 @@ def update_image(session_id: str) -> Response:
     min_x, min_y, x_coeff, y_coeff = db_requests.get_scale_parameters(users_db, session_id)
 
     data = request.get_json()
-    point1 = (float(data['point1']['x']) / x_coeff + min_x, float(data['point1']['y']) / y_coeff + min_y)
-    point2 = (float(data['point2']['x']) / x_coeff + min_x, float(data['point2']['y']) / y_coeff + min_y)
-    radius = float(data['radius'])
-    radius = utils.convert_radius_scale_to_real(radius, x_coeff, y_coeff)
+    logging.error((float(data['point1']['x']), config.MAP_IMAGE_SIZE[1] - float(data['point1']['y'])))
+    logging.error((float(data['point2']['x']), config.MAP_IMAGE_SIZE[1] - float(data['point2']['y'])))
+    point1 = utils.convert_image_coordinates_to_real((float(data['point1']['x']), float(data['point1']['y'])),
+                                                     min_x, min_y, x_coeff, y_coeff, config.MAP_IMAGE_MARGIN)
+    point2 = utils.convert_image_coordinates_to_real((float(data['point2']['x']), float(data['point2']['y'])),
+                                                     min_x, min_y, x_coeff, y_coeff, config.MAP_IMAGE_MARGIN)
+    radius = utils.convert_radius_scale_to_real(float(data['radius']), x_coeff, y_coeff)
     car_count = int(data['car_count'])
 
     polygon = utils.approximate_ellipse(point1, point2, radius, config.N)
@@ -48,8 +52,7 @@ def update_image(session_id: str) -> Response:
     db_requests.update_roads(users_db, updated_roads)
     db_requests.insert_routes(users_db, session_id, routes)
     db_requests.create_map_image(users_db, session_id, True)
-    resp = make_response(";".join([f"({p[0]}, {p[1]})" for p in polygon]))
-    return resp
+    return make_response()
 
 
 def clear_data(session_id: str) -> Response:
@@ -82,7 +85,7 @@ def simulate():
     return user_request(client, update_image)
 
 
-@app.route('/clear', methods=["GET"])
+@app.route('/clear', methods=["DELETE"])
 def clear():
     return user_request(client, clear_data)
 

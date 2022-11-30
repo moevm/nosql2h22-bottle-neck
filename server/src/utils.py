@@ -123,18 +123,18 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
 
 
 def convert_image_coordinates_to_real(point: tuple[int, int], min_x: float, min_y: float,
-                                      x_coeff: float, y_coeff: float) -> tuple[float, float]:
+                                      x_coeff: float, y_coeff: float, margin: float=config.MAP_IMAGE_MARGIN) -> tuple[float, float]:
     return (
-        point[0] / x_coeff + min_x,
-        point[1] / y_coeff + min_y
+        (point[0] - margin) / x_coeff + min_x,
+        (config.MAP_IMAGE_SIZE[1] - (point[1] - margin)) / y_coeff + min_y
     )
 
 
 def convert_real_coordinates_to_image(point: tuple[int, int], min_x: float, min_y: float,
-                                      x_coeff: float, y_coeff: float) -> tuple[float, float]:
+                                      x_coeff: float, y_coeff: float, margin: float=config.MAP_IMAGE_MARGIN) -> tuple[float, float]:
     return (
-        round((point[0] - min_x) * x_coeff),
-        round((point[1] - min_y) * y_coeff)
+        round((point[0] - min_x) * x_coeff) + margin,
+        config.MAP_IMAGE_SIZE[1] - round((point[1] - min_y) * y_coeff) + margin
     )
 
 
@@ -146,16 +146,19 @@ def convert_radius_scale_to_real(radius: float, x_coeff: float, y_coeff: float) 
     )
 
 
-def scale_roads(roads: list, min_x: float, min_y: float, x_coeff: float, y_coeff: float) -> list:
+def scale_roads(roads: list, min_x: float, min_y: float, x_coeff: float,
+                y_coeff: float, margin: float=config.MAP_IMAGE_MARGIN) -> list:
     for road in roads:
-        road["location"][0] = convert_real_coordinates_to_image(road["location"][0], min_x, min_y, x_coeff, y_coeff)
-        road["location"][1] = convert_real_coordinates_to_image(road["location"][1], min_x, min_y, x_coeff, y_coeff)
+        road["location"][0] = convert_real_coordinates_to_image(road["location"][0], min_x, min_y, x_coeff, y_coeff, margin)
+        road["location"][1] = convert_real_coordinates_to_image(road["location"][1], min_x, min_y, x_coeff, y_coeff, margin)
 
 
-def scale_routes(routes: list, min_x: float, min_y: float, x_coeff: float, y_coeff: float) -> list:
+def scale_routes(routes: list, min_x: float, min_y: float, x_coeff: float,
+                 y_coeff: float, margin: float=config.MAP_IMAGE_MARGIN) -> list:
     for route in routes:
-        route['points'] = scale_routes_points(route['points'], min_x, min_y, x_coeff, y_coeff)
+        route['points'] = scale_routes_points(route['points'], min_x, min_y, x_coeff, y_coeff, margin)
 
 
-def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float, y_coeff: float) -> list:
-    return [convert_real_coordinates_to_image(p, min_x, min_y, x_coeff, y_coeff) for p in points]
+def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float,
+                        y_coeff: float, margin: float=config.MAP_IMAGE_MARGIN) -> list:
+    return [convert_real_coordinates_to_image(p, min_x, min_y, x_coeff, y_coeff, margin) for p in points]

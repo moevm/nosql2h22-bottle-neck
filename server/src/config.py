@@ -8,15 +8,18 @@ MONGO_PORT = 27017
 # Database names
 CURRENT_USERS_DB_NAME = "current_data"
 ORIGIN_DB_NAME = "origin_data"  # Origin database name
-MAP_IMAGE_SIZE = (800, 800)  # in pixels
 TTL_INDEX_NAME = "ttl"
 GEOINDEX_INDEX_NAME = "geo"
+
+# Drawing settings
+MAP_IMAGE_SIZE = (800, 800)  # in pixels
+MAP_IMAGE_MARGIN = 15  # in pixels
 
 # GeoCoordinates
 FROM_EPSG = "EPSG:4326"
 TO_EPSG = "EPSG:3857"
 # TO_EPSG = "EPSG:32636"  # Saint Petersburg region
-N = 20
+N = 100
 MAX_COORDINATE = 10 ** 9
 
 # Data loading config
