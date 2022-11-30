@@ -119,22 +119,26 @@ function App(){
         console.log(minWorkload.current.value)
         console.log(maxWorkload.current.value)
         console.log(typeRoads.current.value)
-        if(minWorkload.current.value > maxWorkload.current.value){
-            msgState("min загруженость > max загруженость")
+        let url_params = {}
+        if(minWorkload.current.value !== ""){
+            url_params["min"] = minWorkload.current.value
         }
-        else{
-            msgState("")
-            fetch('/roads?'+new URLSearchParams({
-                min: minWorkload.current.value,
-                max: maxWorkload.current.value,
-                address: address.current.value,
-                type: typeRoads.current.value
-                 })).then(response=>response.json())
-                .then((json) => {
-                    console.log(json)
-                    dataRoadsState(json)
-                })
+        if(maxWorkload.current.value !== ""){
+            url_params["max"] = maxWorkload.current.value
         }
+        if(address.current.value !== ""){
+            url_params["address"] = address.current.value
+        }
+        if(typeRoads.current.value !== ""){
+            url_params["type"] = typeRoads.current.value
+        }
+        msgState("")
+        fetch('/roads?'+new URLSearchParams(url_params))
+            .then(response=>response.json())
+            .then((json) => {
+                console.log(json)
+                dataRoadsState(json)
+            })
         ev.preventDefault();
     }
     function filterRoutes(ev){
@@ -142,22 +146,23 @@ function App(){
         console.log(maxLenght.current.value)
         console.log(minTime.current.value)
         console.log(maxTime.current.value)
-        if(minLenght.current.value > maxLenght.current.value){
-            msgState("min длина > max длины")
+        let url_params = {}
+        if(minLenght.current.value !== ""){
+            url_params["minLength"] = minLenght.current.value
         }
-        else if(minTime.current.value > maxTime.current.value){
-            msgState("min время > max времени")
+        if(maxLenght.current.value !== ""){
+            url_params["maxLength"] = maxLenght.current.value
         }
-        else{
-            msgState("")
-            fetch('/routes?'+new URLSearchParams({
-                minTime: minTime.current.value,
-                maxTime: maxTime.current.value,
-                minLength: minLenght.current.value,
-                maxLength: maxLenght.current.value
-            })).then(response=>response.json())
-                .then(json => dataRoutesState(json))
+        if(minTime.current.value !== ""){
+            url_params["minTime"] = minTime.current.value
         }
+        if(maxTime.current.value !== ""){
+            url_params["maxTime"] = maxTime.current.value
+        }
+        msgState("")
+        fetch('/routes?'+new URLSearchParams(url_params))
+            .then(response=>response.json())
+            .then(json => dataRoutesState(json))
         ev.preventDefault();
     }
     function simulate(ev){

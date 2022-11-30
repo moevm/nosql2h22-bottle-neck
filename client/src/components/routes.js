@@ -33,8 +33,8 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
                 <thead>
                 <tr>
                     <th className="text-left">№</th>
-                    <th className="text-left">Время</th>
                     <th className="text-left">Длина</th>
+                    <th className="text-left">Время</th>
                 </tr>
                 </thead>
             </table>
