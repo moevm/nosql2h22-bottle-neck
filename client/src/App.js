@@ -74,7 +74,7 @@ function App(){
     }
     function getImage(){
         let image_new = new Image()
-        image_new.src = '/map_image'
+        image_new.src = '/map_image?' + new Date().getTime()
         image_new.onload = function() {
             contextRef.current.drawImage(image_new, 0, 0, 800, 800)
             getPoints();
@@ -121,7 +121,7 @@ function App(){
         }
         else{
             msgState("")
-            fetch('/roads'+new URLSearchParams({
+            fetch('/roads?'+new URLSearchParams({
                 min: minWorkload.current.value,
                 max: maxWorkload.current.value,
                 address: address.current.value,
@@ -143,7 +143,7 @@ function App(){
         }
         else{
             msgState("")
-            fetch('/routes'+new URLSearchParams({
+            fetch('/routes?'+new URLSearchParams({
                 minTime: minTime.current.value,
                 maxTime: maxTime.current.value,
                 minLength: minLenght.current.value,
@@ -202,7 +202,11 @@ function App(){
                 <div className="inline">
                     <button onClick={simulate}>Смоделировать</button>
                     <button onClick={(e)=>{
-                        dropPoints()
+                        fetch("/clear", {
+                            method: "DELETE"
+                        }).then((response) =>{
+                            dropPoints()
+                        })
                         }}>Очистить точки на карте</button>
                 </div>
                 <p>Количество маршрутов: {6}</p>

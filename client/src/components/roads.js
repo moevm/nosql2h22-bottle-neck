@@ -14,7 +14,7 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
         setValue(e.target.value);
     };
     return (<div>
-        <InputComponent label={"Адрес/имя"} type={"text"} value={"Введите что-то"} sRef={address}/>
+        <InputComponent label={"Адрес/имя"} type={"text"} placeholder={"Введите что-то"} sRef={address}/>
         <select value={value} ref={typeRoads} onChange={handleChange}>
             <option value="Тип дорог">Тип дорог</option>
             <option value="Перекресток">Перекресток</option>
