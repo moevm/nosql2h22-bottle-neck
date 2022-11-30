@@ -4,6 +4,7 @@ from random import randint, choice
 import math
 import config
 
+EPS = 0.000001
 transformer = Transformer.from_crs(config.FROM_EPSG, config.TO_EPSG, always_xy=True)
 
 
@@ -55,7 +56,7 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
     quadrant3 = []
     quadrant4 = []
     center = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
-    x_points_diff = max(abs(p2[0] - p1[0]), 0.000001)
+    x_points_diff = max(abs(p2[0] - p1[0]), EPS)
     if p2[0] - p1[0] < 0:
         x_points_diff *= -1
     angle = math.atan((p2[1] - p1[1]) / x_points_diff)
@@ -67,7 +68,8 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
                   radius[1] * math.sin(angle + math.pi / 2)))
     if a < b:
         a, b = b, a
-        cos_value, sin_value = -sin_value, -cos_value
+        cos_value = math.cos(-angle)
+        sin_value = math.sin(-angle)
     for i in range(n):
         angle = math.pi / 2 - math.atan(math.tan(math.pi / 2 * i / n) * a / b) if i != n - 1 else 0
         x = a * math.cos(angle)
@@ -139,7 +141,7 @@ def convert_real_coordinates_to_image(point: tuple[int, int], min_x: float, min_
 
 
 def convert_radius_scale_to_real(radius: float, x_coeff: float, y_coeff: float) -> tuple[float, float]:
-    radius = min(1.0, max(0.0, radius))
+    radius = min(1.0, max(EPS, radius))
     return (
         config.MAP_IMAGE_SIZE[0] * radius / x_coeff,
         config.MAP_IMAGE_SIZE[1] * radius / y_coeff,
