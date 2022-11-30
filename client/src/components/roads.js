@@ -5,7 +5,7 @@ import 'react-dropdown/style.css';
 
 export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter, data}) {
     const getInitialState = () => {
-        const value = "Тип дорог";
+        const value = "";
         return value;
     };
     const [value, setValue] = React.useState(getInitialState);
@@ -16,10 +16,13 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
     return (<div>
         <InputComponent label={"Адрес/имя"} type={"text"} placeholder={"Введите что-то"} sRef={address}/>
         <select value={value} ref={typeRoads} onChange={handleChange}>
-            <option value="Тип дорог">Тип дорог</option>
-            <option value="Перекресток">Перекресток</option>
-            <option value="Улица">Улица</option>
-            <option value="Проспект">Проспект</option>
+            <option value="motorway">motorway</option>
+            <option value="trunk">trunk</option>
+            <option value="primary">primary</option>
+            <option value="secondary">secondary</option>
+            <option value="residential">residential</option>
+            <option value="tertiary">tertiary</option>
+            <option value="secondary_link">secondary link</option>
         </select>
         <div class="inline">
             <div>

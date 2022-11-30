@@ -130,7 +130,10 @@ function App(){
                 address: address.current.value,
                 type: typeRoads.current.value
                  })).then(response=>response.json())
-                .then(json => dataRoadsState(json))
+                .then((json) => {
+                    console.log(json)
+                    dataRoadsState(json)
+                })
         }
         ev.preventDefault();
     }
