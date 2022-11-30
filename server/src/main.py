@@ -36,11 +36,11 @@ def update_image(session_id: str) -> Response:
     min_x, min_y, x_coeff, y_coeff = db_requests.get_scale_parameters(users_db, session_id)
 
     data = request.get_json()
-    point1 = (data['point1']['x'] / x_coeff + min_x, data['point1']['y'] / y_coeff + min_y)
-    point2 = (data['point2']['x'] / x_coeff + min_x, data['point2']['y'] / y_coeff + min_y)
-    radius = data['radius']
+    point1 = (float(data['point1']['x']) / x_coeff + min_x, float(data['point1']['y']) / y_coeff + min_y)
+    point2 = (float(data['point2']['x']) / x_coeff + min_x, float(data['point2']['y']) / y_coeff + min_y)
+    radius = float(data['radius'])
     radius = utils.convert_radius_scale_to_real(radius, x_coeff, y_coeff)
-    car_count = data['car_count']
+    car_count = int(data['car_count'])
 
     polygon = utils.approximate_ellipse(point1, point2, radius, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)

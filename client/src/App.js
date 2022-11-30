@@ -160,8 +160,12 @@ function App(){
         else{
             msgState("")
             fetch("/simulate", {
-                method: 'post',
-                body: {
+                method: 'POST',
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
                     "point1": {
                         "x": point1[0],
                         "y": point1[1]
@@ -172,7 +176,7 @@ function App(){
                     },
                     "radius": radius.current.value,
                     "car_count": countCars.current.value
-                }
+                })
             }).then((responce)=>{
                 console.log(responce);
                 getImage();

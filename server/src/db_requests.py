@@ -110,6 +110,8 @@ def filter_roads(users_db: Database, session_id: str, request_args: dict):
     max_workload = request_args.get("max")
     if min_workload is not None or max_workload is not None:
         filter_request["workload"] = {}
+    else:
+        filter_request["workload"] = {"$exists": True}
     if min_workload is not None:
         filter_request["workload"]["$gte"] = float(min_workload)
     if max_workload is not None:
