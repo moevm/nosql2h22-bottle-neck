@@ -72,7 +72,7 @@ function App(){
             contextRef.current.stroke();
         }
     }
-    function getImage(flag = true){
+    function getImage(flag = true, f = ()=>{}){
         let image_new = new Image()
         image_new.src = '/map_image?' + new Date().getTime()
         image_new.onload = function() {
@@ -80,6 +80,7 @@ function App(){
             if(flag){
                 getPoints();
                 console.log(flag, '2')
+                f()
             }
         }
         console.log("img")
@@ -110,6 +111,23 @@ function App(){
         fetch('/routes').then(response=>response.json())
             .then(json => dataRoutesState(json))
     }
+    function drawRoutes(id){
+        console.log('2',id)
+        getImage(true, ()=>{
+            contextRef.current.lineWidth = 2
+            for(let i = 0; i < dataRoutes[id].points.length; i++){
+                drawLine(dataRoutes[id].points[i][0], dataRoutes[id].points[i][1])
+            }
+            contextRef.current.lineWidth=8
+        })
+
+
+    }
+    function drawLine(x,y) {
+        contextRef.current.lineTo(x, y);
+        contextRef.current.stroke()
+    }
+
     //+ new URLSearchParams({
     //     foo: 'value',
     //     bar: 2,
@@ -236,7 +254,7 @@ function App(){
                 </div>
                 {getCountRoutes()}
                 <br/>
-                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes}/>
+                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes}/>
             </div>
             <div align="center">
                 <div class="table">
