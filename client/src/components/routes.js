@@ -28,6 +28,8 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
     </div>)
     function getTable(){
         let table = []
+        if(data != null)
+            table.push(<div>Количество маршрутов {data.length}</div>)
         table.push(
             <table>
                 <thead>
@@ -44,8 +46,8 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
             for(let i = 0; i < data.length; i++){
                 content.push(<tr>
                     <td>{i + 1}</td>
-                    <td>{data[i].length}</td>
-                    <td>{data[i].time}</td>
+                    <td>{Math.round(data[i].length*100)/100}</td>
+                    <td>{Math.round(data[i].time*100)/100}</td>
                 </tr>)
             }
             table.push(<div className="table-scroll-body"><table><tbody>{content}</tbody></table></div>)

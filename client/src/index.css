@@ -56,7 +56,7 @@ label{
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 50%;
+  width: 100%;
 }
 
 td, th {
@@ -66,7 +66,7 @@ td, th {
 }
 
 .table-scroll-body {
-  height: 250px;
+  height: 500px;
   overflow-x: auto;
   margin-top: 0px;
   margin-bottom: 20px;

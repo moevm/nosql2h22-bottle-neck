@@ -44,6 +44,8 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
     </div>)
     function getTable(){
         let table = []
+        if(data != null)
+            table.push(<div>Количество дорог {data.length}</div>)
         table.push(
             <table>
                 <thead>
