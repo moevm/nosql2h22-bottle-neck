@@ -24,6 +24,8 @@ function App(){
     const maxLenght = useRef(null)
     const minTime = useRef(null)
     const maxTime = useRef(null)
+    const fileName = useRef(null)
+    const [isOpen,isOpenState] = useState(false)
     useEffect(() => {
         const canvas = canvasRef.current;
         canvas.width = 830;
@@ -228,8 +230,49 @@ function App(){
         }
         return (<p>Количество маршрутов: {dataRoutes.length}</p>)
     }
+    function importFile(){
+        console.log('Import',fileName.current.files[0])
+        if(fileName.current.value === ''){
+            msgState('Название файла остутсвует')
+        }
+        else{
+            msgState('')
+            isOpenState(false)
+            //тут выполнение запроса
+        }
+    }
+    function exportFile(){
+        console.log('Export')
+
+
+    }
     return(
         <div className="App">
+
+            <div className="left">
+                <button>Справка</button>
+                <button onClick={()=>{
+                isOpenState(true)
+                }
+                }>Import</button>
+                <button onClick={exportFile}>Export</button>
+            </div>
+            <div className={`flex middle center  ${isOpen ? "modal open" : ""}`}>
+            {isOpen ?
+                (<div className={`row modal-content`}>
+                    <div className="col-12 middle modal-title">Выберите файл</div>
+                    {msg}
+                    <br/>
+                    <input ref={fileName} type={"file"} placeholder={"Название файла"}/>
+                    <br/>
+                    <button onClick={importFile}>Import</button>
+                    <button onClick={()=>{
+                        isOpenState(false)
+                    }}>Закрыть</button>
+                </div>) : null
+            }
+            </div>
+            <div>
             <div className="right">
                 <p>{msg}</p>
                 <div className="inline">
@@ -270,7 +313,7 @@ function App(){
                     </div>
                 </div>
             </div>
-
+            </div>
         </div>
     )
 }
