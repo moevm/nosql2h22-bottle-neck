@@ -4,14 +4,6 @@
 
 * docker-compose. [Installation](https://docs.docker.com/compose/install/)
 
-## Data loading
-
-Before using it is necessary to download data, use following commands:
-```bash
-docker-compose -f ./load-data-docker-compose.yml build
-docker-compose -f ./load-data-docker-compose.yml up --abort-on-container-exit
-```
-
 ## Build docker images
 
 `docker-compose build`

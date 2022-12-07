@@ -4,11 +4,15 @@ services:
     build: ./client
     ports:
       - 8080:3000
+    depends_on:
+      - bottle-neck
   bottle-neck:
     build: ./server
     stop_signal: SIGINT
     ports:
       - 5000:5000
+    depends_on:
+      - db
   db:
     image: mongo:6.0.1
     volumes:
