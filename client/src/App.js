@@ -238,8 +238,10 @@ function App(){
         else{
             let formData = new FormData();
             formData.append("import", fileName.current.files[0]);
+            document.body.style.cursor='wait';
             fetch('/import', {method: "POST", body: formData
             }).then((response) => {
+                document.body.style.cursor='default';
                 msgState('');
                 isOpenState(false);
                 getImage();
