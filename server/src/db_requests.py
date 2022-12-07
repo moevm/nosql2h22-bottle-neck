@@ -2,7 +2,7 @@ from datetime import datetime
 from pymongo.database import Database
 from pymongo import MongoClient, GEO2D
 from bson.json_util import dumps
-from utils import transform_roads, scale_roads, scale_routes
+from utils import transform_roads, scale_roads, scale_routes, roads_are_valid, routes_are_valid
 import drawing
 import config
 
@@ -206,11 +206,14 @@ def get_map_image(users_db: Database, session_id: str):
 def export_data(users_db: Database, session_id: str):
     roads = list(users_db.roads.find({"user": session_id}))
     for road in roads:
+        road.pop('_id')
         road.pop('user')
+        road.pop('ways')
         road.pop('date')
 
     routes = list(users_db.routes.find({"user": session_id}))
     for route in routes:
+        route.pop('_id')
         route.pop('user')
         route.pop('date', None)
 
@@ -218,3 +221,40 @@ def export_data(users_db: Database, session_id: str):
         'roads': roads,
         'routes': routes
     }
+
+
+def import_data(users_db: Database, session_id: str, data: dict):
+    roads = data.get('roads', None)
+    routes = data.get('routes', None)
+
+    # Verify data
+    if roads is None or routes is None:
+        return False
+    if not roads_are_valid(roads) or not routes_are_valid(routes):
+        return False
+
+    # Add date and user
+    for road in roads:
+        road['user'] = session_id
+        road['date'] = datetime.utcnow()
+    for route in routes:
+        route['user'] = session_id
+        # route['date'] = datetime.utcnow()
+
+    # Clear users collections
+    users_db.roads.delete_many({"user": session_id})
+    users_db.routes.delete_many({"user": session_id})
+    users_db.users_info.delete_many({"user": session_id})
+
+    # Insert new data
+    if roads:
+        users_db.roads.insert_many(roads)
+        # Add ways
+        for road in users_db.roads.find({"user": session_id}):
+            neighbours = users_db.roads.find({"user": session_id, "location.0": road["location"][1]})
+            ways = [neighbour["_id"] for neighbour in neighbours]
+            users_db.roads.update_one({"_id": road["_id"]}, {"$set": {"ways": ways}})
+    if routes:
+        users_db.routes.insert_many(routes)
+    create_map_image(users_db, session_id, with_workload=True)
+    return True

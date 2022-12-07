@@ -236,9 +236,17 @@ function App(){
             msgState('Название файла остутсвует')
         }
         else{
-            msgState('')
-            isOpenState(false)
-            //тут выполнение запроса
+            let formData = new FormData();
+            formData.append("import", fileName.current.files[0]);
+            fetch('/import', {method: "POST", body: formData
+            }).then((response) => {
+                msgState('');
+                isOpenState(false);
+                getImage();
+                getPoints();
+                getRoads();
+                getRoutes();
+            });
         }
     }
     function exportFile(){
