@@ -26,6 +26,8 @@ function App(){
     const maxTime = useRef(null)
     const fileName = useRef(null)
     const [isOpen,isOpenState] = useState(false)
+    const [roadsMaxCount, roadsMaxCountState] = useState(null)
+    const [routesMaxCount, routesMaxCountState] = useState(null)
     useEffect(() => {
         const canvas = canvasRef.current;
         canvas.width = 830;
@@ -107,11 +109,17 @@ function App(){
     }
     function getRoads(){
         fetch('/roads').then(response=>response.json())
-            .then(json => dataRoadsState(json))
+            .then((json) => {
+                dataRoadsState(json)
+                roadsMaxCountState(json.length)
+            })
     }
     function getRoutes(){
         fetch('/routes').then(response=>response.json())
-            .then(json => dataRoutesState(json))
+            .then((json) => {
+                dataRoutesState(json)
+                routesMaxCountState(json.length)
+            })
     }
     function drawRoutes(id){
         console.log('2',id)
@@ -226,9 +234,9 @@ function App(){
     }
     function getCountRoutes(){
         if(dataRoutes == null){
-            return (<p>Количество маршрутов: {0}</p>)
+            return (<p>Количество маршрутов: {0}/{0}</p>)
         }
-        return (<p>Количество маршрутов: {dataRoutes.length}</p>)
+        return (<p>Количество маршрутов: {dataRoutes.length}/{routesMaxCount}</p>)
     }
     function importFile(){
         console.log('Import',fileName.current.files[0])
@@ -317,7 +325,7 @@ function App(){
                 </div>
                 {getCountRoutes()}
                 <br/>
-                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes}/>
+                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes} roadsMaxCount={roadsMaxCount} routesMaxCount={routesMaxCount}/>
             </div>
             <div align="center">
                 <div class="table">

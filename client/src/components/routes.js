@@ -1,6 +1,6 @@
 import * as React from 'react';
 import InputComponent from "./inputComponent";
-export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data, drawRoutes}) {
+export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data, drawRoutes, dataMaxLen}) {
     return (<div>
         <div class='inline'>
             <div>
@@ -29,7 +29,7 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
     function getTable(){
         let table = []
         if(data != null)
-            table.push(<div>Количество маршрутов {data.length}</div>)
+            table.push(<div>Количество маршрутов {data.length}/{dataMaxLen}</div>)
         table.push(
             <table>
                 <thead>
