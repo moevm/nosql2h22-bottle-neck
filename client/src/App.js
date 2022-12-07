@@ -28,6 +28,8 @@ function App(){
     const [isOpen,isOpenState] = useState(false)
     const [roadsMaxCount, roadsMaxCountState] = useState(null)
     const [routesMaxCount, routesMaxCountState] = useState(null)
+    const [currentDrawRouteId, currentDrawRouteIdState] = useState(null)
+    const [mapImage, mapImageState] = useState(null)
     useEffect(() => {
         document.body.style.cursor='wait';
         const canvas = canvasRef.current;
@@ -41,6 +43,7 @@ function App(){
         let image_new = new Image()
         image_new.src = '/map_image'
         image_new.onload = function() {
+            mapImageState(image_new)
             contextRef.current.drawImage(image_new, 0, 0, 830, 830)
             document.body.style.cursor='default';
         }
@@ -82,6 +85,7 @@ function App(){
         let image_new = new Image()
         image_new.src = '/map_image?' + new Date().getTime()
         image_new.onload = function() {
+            mapImageState(image_new)
             contextRef.current.drawImage(image_new, 0, 0, 830, 830)
             if(flag){
                 getPoints();
@@ -90,6 +94,14 @@ function App(){
             }
         }
         console.log("img")
+    }
+    function getSavedImage(flag = true, f = ()=>{}){
+        contextRef.current.drawImage(mapImage, 0, 0, 830, 830)
+        if(flag){
+            getPoints();
+            console.log(flag, '2')
+            f()
+        }
     }
     function dropPoints(){
         console.log(5)
@@ -123,13 +135,24 @@ function App(){
                 routesMaxCountState(json.length)
             })
     }
-    function drawRoutes(id){
-        console.log('2',id)
-        getImage(true, ()=>{
+    function drawRoutes(id, alwaysDraw=false){
+        console.log('2',id, currentDrawRouteId)
+        getSavedImage(true, ()=>{
+            if(id === null){
+                return
+            }
+            console.log("checking draw rotues")
+            if(!alwaysDraw && currentDrawRouteId === id){
+                currentDrawRouteIdState(null)
+                return
+            }
+            currentDrawRouteIdState(id)
+            contextRef.current.moveTo(point1[0], point1[1])
             contextRef.current.lineWidth = 2
             for(let i = 0; i < dataRoutes[id].points.length; i++){
                 drawLine(dataRoutes[id].points[i][0], dataRoutes[id].points[i][1])
             }
+            drawLine(point2[0], point2[1])
             contextRef.current.lineWidth=8
         })
 
@@ -236,9 +259,9 @@ function App(){
     }
     function getCountRoutes(){
         if(dataRoutes == null){
-            return (<p>Количество маршрутов: {0}/{0}</p>)
+            return (<p>Количество маршрутов: {0}</p>)
         }
-        return (<p>Количество маршрутов: {dataRoutes.length}/{routesMaxCount}</p>)
+        return (<p>Количество маршрутов: {dataRoutes.length}</p>)
     }
     function importFile(){
         console.log('Import',fileName.current.files[0])
@@ -331,7 +354,7 @@ function App(){
                 </div>
                 {getCountRoutes()}
                 <br/>
-                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes} roadsMaxCount={roadsMaxCount} routesMaxCount={routesMaxCount}/>
+                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes} roadsMaxCount={roadsMaxCount} routesMaxCount={routesMaxCount} curDrawRouteId={currentDrawRouteId}/>
             </div>
             <div align="center">
                 <div class="table">
