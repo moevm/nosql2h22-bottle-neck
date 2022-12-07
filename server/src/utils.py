@@ -68,8 +68,8 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
                   radius[1] * math.sin(angle + math.pi / 2)))
     if a < b:
         a, b = b, a
-        cos_value = math.cos(-angle)
-        sin_value = math.sin(-angle)
+        cos_value = math.cos(math.pi / 2 + angle)
+        sin_value = math.sin(math.pi / 2 + angle)
     for i in range(n):
         angle = math.pi / 2 - math.atan(math.tan(math.pi / 2 * i / n) * a / b) if i != n - 1 else 0
         x = a * math.cos(angle)
