@@ -168,10 +168,10 @@ function App(){
         console.log(maxTime.current.value)
         let url_params = {}
         if(minLenght.current.value !== ""){
-            url_params["minLength"] = minLenght.current.value
+            url_params["minLength"] = minLenght.current.value * 1000
         }
         if(maxLenght.current.value !== ""){
-            url_params["maxLength"] = maxLenght.current.value
+            url_params["maxLength"] = maxLenght.current.value * 1000
         }
         if(minTime.current.value !== ""){
             url_params["minTime"] = minTime.current.value

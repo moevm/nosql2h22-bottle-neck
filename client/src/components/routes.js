@@ -50,7 +50,7 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
                 }
                 }>
                     <td id={i} >{i + 1}</td>
-                    <td id={i} >{Math.round(data[i].length*100)/100}</td>
+                    <td id={i} >{Math.round(data[i].length)/1000}</td>
                     <td id={i} >{Math.round(data[i].time*100)/100}</td>
                 </tr>)
             }
