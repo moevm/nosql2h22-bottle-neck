@@ -201,3 +201,20 @@ def get_map_image(users_db: Database, session_id: str):
     if user_info is None:
         user_info = {}
     return user_info.get("map_image", bytes("no data", "UTF-8"))
+
+
+def export_data(users_db: Database, session_id: str):
+    roads = list(users_db.roads.find({"user": session_id}))
+    for road in roads:
+        road.pop('user')
+        road.pop('date')
+
+    routes = list(users_db.routes.find({"user": session_id}))
+    for route in routes:
+        route.pop('user')
+        route.pop('date', None)
+
+    return {
+        'roads': roads,
+        'routes': routes
+    }

@@ -242,9 +242,19 @@ function App(){
         }
     }
     function exportFile(){
-        console.log('Export')
-
-
+        fetch('/export').then((result) => {
+            return result.blob();
+        }).then((blob) => {
+            if (blob != null) {
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'export.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            }
+        });
     }
     return(
         <div className="App">
