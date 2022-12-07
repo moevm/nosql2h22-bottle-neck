@@ -234,17 +234,46 @@ def import_data(users_db: Database, session_id: str, data: dict):
         return False
 
     # Add date and user
+    cur_date = datetime.utcnow()
+    max_x = min_x = roads[0]['location'][0][0] if len(roads) > 0 else 0.0
+    max_y = min_y = roads[0]['location'][0][1] if len(roads) > 0 else 0.0
     for road in roads:
+        min_x = min(min_x, road['location'][0][0], road['location'][1][0])
+        max_x = max(max_x, road['location'][0][0], road['location'][1][0])
+        min_y = min(min_y, road['location'][0][1], road['location'][1][1])
+        max_y = max(max_y, road['location'][0][1], road['location'][1][1])
         road['user'] = session_id
-        road['date'] = datetime.utcnow()
+        road['date'] = cur_date
     for route in routes:
         route['user'] = session_id
-        # route['date'] = datetime.utcnow()
+        route['date'] = cur_date
+
+    x_diff = max_x - min_x
+    y_diff = max_y - min_y
+    if x_diff == 0.0 or y_diff == 0.0:
+        return False
+
+    users_db.users_info.update_one(
+        {
+            "_id": session_id
+        },
+        {
+            "$set": {
+                "scale": {
+                    "min_x": min_x,
+                    "min_y": min_y,
+                    "x_coeff": config.MAP_IMAGE_SIZE[0] / x_diff,
+                    "y_coeff": config.MAP_IMAGE_SIZE[1] / y_diff
+                },
+                "date": cur_date
+            }
+        },
+        upsert=True
+    )
 
     # Clear users collections
     users_db.roads.delete_many({"user": session_id})
     users_db.routes.delete_many({"user": session_id})
-    users_db.users_info.delete_many({"user": session_id})
 
     # Insert new data
     if roads:
