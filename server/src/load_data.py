@@ -64,9 +64,9 @@ def load_data_to_origin():
     """
     client = MongoClient('mongodb://db', 27017)
     database = client[ORIGIN_DB_NAME]
-    # Drop roads if present
-    database.roads.drop()
-    load_data(database)
+    # Load roads if db is empty
+    if database.roads.count_documents({}) == 0:
+        load_data(database)
 
 
 if __name__ == '__main__':
