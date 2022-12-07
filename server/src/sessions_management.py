@@ -25,9 +25,9 @@ def check_session_time(mongo: MongoClient) -> str:
     users_collection = mongo.get_database(config.CURRENT_USERS_DB_NAME).users_info
     if session_id is None or users_collection.find_one({"_id": session_id}) is None:
         session_id = generate_session(mongo)
-    users_collection.update_one({"_id": session_id},
-                                {"$set": {"date": datetime.utcnow()}},
-                                upsert=True)
+    timeout_update = config.TIMEOUT.total_seconds() * config.TIMEOUT_UPDATE
+    if (datetime.utcnow() - users_collection.find_one({"_id": session_id})["date"]).total_seconds() > timeout_update:
+        db_requests.update_dates(mongo.get_database(config.CURRENT_USERS_DB_NAME), session_id)
     return session_id
 
 
