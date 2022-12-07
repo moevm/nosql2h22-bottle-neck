@@ -164,3 +164,38 @@ def scale_routes(routes: list, min_x: float, min_y: float, x_coeff: float,
 def scale_routes_points(points: list, min_x: float, min_y: float, x_coeff: float,
                         y_coeff: float, margin: float=config.MAP_IMAGE_MARGIN) -> list:
     return [convert_real_coordinates_to_image(p, min_x, min_y, x_coeff, y_coeff, margin) for p in points]
+
+
+def roads_are_valid(roads: dict) -> bool:
+    try:
+        for road in roads:
+            workload = road.get('workload', None)
+            if workload is not None and (10 < workload < 0):
+                return False
+            if road['capacity'] < road['car_count']:
+                return False
+            if road['capacity'] < 0:
+                return False
+            if road['car_count'] < 0:
+                return False
+        return True
+    except KeyError:
+        return False
+
+
+def routes_are_valid(routes: dict) -> bool:
+    try:
+        for route in routes:
+            if len(route['workloads']) != (len(route['points']) - 1):
+                return False
+            if len(route['workloads']) == 0:
+                return False
+            if len(route['points']) < 1:
+                return False
+            if route['time'] < 0:
+                return False
+            if route['length'] < 0:
+                return False
+        return True
+    except KeyError:
+        return False
