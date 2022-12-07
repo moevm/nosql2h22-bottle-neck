@@ -5,6 +5,8 @@ services:
     entrypoint: ./load_data.sh
   db:
     image: mongo:6.0.1
-    user: "${DUID}:${DGID}"
     volumes:
-      - ./mongo_data:/data/db
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

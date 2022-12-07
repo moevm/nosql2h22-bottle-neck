@@ -6,7 +6,11 @@
 
 ## Data loading
 
-Before using it is necessary to download data, use script `./load_data.sh`
+Before using it is necessary to download data, use following commands:
+```bash
+docker-compose -f ./load-data-docker-compose.yml build
+docker-compose -f ./load-data-docker-compose.yml up --abort-on-container-exit
+```
 
 ## Build docker images
 
@@ -14,7 +18,7 @@ Before using it is necessary to download data, use script `./load_data.sh`
 
 ## Run containers
 
-`./run.sh`
+`docker-compose up`
 
 The application is available at `http://localhost:8080`
 

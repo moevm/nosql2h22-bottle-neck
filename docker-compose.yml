@@ -11,6 +11,8 @@ services:
       - 5000:5000
   db:
     image: mongo:6.0.1
-    user: "${DUID}:${DGID}"
     volumes:
-      - ./mongo_data:/data/db
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
