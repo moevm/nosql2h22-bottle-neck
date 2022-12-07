@@ -1,6 +1,8 @@
 import logging
-from flask import Flask, make_response, Response, request
+import json
+from flask import Flask, make_response, Response, request, send_file
 from pymongo import MongoClient
+from io import BytesIO
 from sessions_management import user_request
 import db_requests
 import utils
@@ -60,6 +62,25 @@ def clear_data(session_id: str) -> Response:
     return make_response(db_requests.clear_data(users_db, session_id))
 
 
+def export_data(session_id: str) -> Response:
+    users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
+    data = db_requests.export_data(users_db, session_id)
+    out_stream = BytesIO()
+    out_stream.write(json.dumps(data).encode())
+    out_stream.seek(0)
+    return send_file(out_stream, mimetype='application/json', as_attachment=True, download_name='export.json')
+
+
+def import_data(session_id: str) -> Response:
+    users_db = client.get_database(config.CURRENT_USERS_DB_NAME)
+    import_file = request.files['import']
+    data = json.load(import_file.stream)
+    if db_requests.import_data(users_db, session_id, data):
+        return make_response()
+    else:
+        return make_response("Bad import file", 400)
+
+
 @app.route('/')
 def server():
     return user_request(client, main_page)
@@ -88,6 +109,16 @@ def simulate():
 @app.route('/clear', methods=["DELETE"])
 def clear():
     return user_request(client, clear_data)
+
+
+@app.route('/export', methods=["GET"])
+def export_route():
+    return user_request(client, export_data)
+
+
+@app.route('/import', methods=["POST"])
+def import_route():
+    return user_request(client, import_data)
 
 
 def on_start():

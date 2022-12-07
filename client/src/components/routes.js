@@ -1,6 +1,6 @@
 import * as React from 'react';
 import InputComponent from "./inputComponent";
-export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data}) {
+export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data, drawRoutes, dataMaxLen}) {
     return (<div>
         <div class='inline'>
             <div>
@@ -28,6 +28,8 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
     </div>)
     function getTable(){
         let table = []
+        if(data != null)
+            table.push(<div>Количество маршрутов {data.length}/{dataMaxLen}</div>)
         table.push(
             <table>
                 <thead>
@@ -42,10 +44,14 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
         if(data != null){
             let content = []
             for(let i = 0; i < data.length; i++){
-                content.push(<tr>
-                    <td>{i + 1}</td>
-                    <td>{data[i].length}</td>
-                    <td>{data[i].time}</td>
+                content.push(<tr onClick={(ev)=>{
+                    console.log(ev.target.id)
+                    drawRoutes(ev.target.id)
+                }
+                }>
+                    <td id={i} >{i + 1}</td>
+                    <td id={i} >{Math.round(data[i].length)/1000}</td>
+                    <td id={i} >{Math.round(data[i].time*100)/100}</td>
                 </tr>)
             }
             table.push(<div className="table-scroll-body"><table><tbody>{content}</tbody></table></div>)

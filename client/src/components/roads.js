@@ -3,7 +3,7 @@ import InputComponent from "./inputComponent";
 
 import 'react-dropdown/style.css';
 
-export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter, data}) {
+export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter, data, dataMaxLen}) {
     const getInitialState = () => {
         const value = "Тип дорог";
         return value;
@@ -44,6 +44,8 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
     </div>)
     function getTable(){
         let table = []
+        if(data != null)
+            table.push(<div>Количество дорог {data.length}/{dataMaxLen}</div>)
         table.push(
             <table>
                 <thead>
