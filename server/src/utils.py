@@ -101,6 +101,8 @@ def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
         road["car_count"] = cars
         road["workload"] = round(cars / road["capacity"] * 10)
         new_roads[(road["_id"])] = road
+    if len(new_roads) == 0:
+        return [], []
     routes = []
     roads_values = list(new_roads.values())
     for _ in range(randint(0, 20)):
