@@ -29,6 +29,7 @@ function App(){
     const [roadsMaxCount, roadsMaxCountState] = useState(null)
     const [routesMaxCount, routesMaxCountState] = useState(null)
     useEffect(() => {
+        document.body.style.cursor='wait';
         const canvas = canvasRef.current;
         canvas.width = 830;
         canvas.height = 830;
@@ -41,6 +42,7 @@ function App(){
         image_new.src = '/map_image'
         image_new.onload = function() {
             contextRef.current.drawImage(image_new, 0, 0, 830, 830)
+            document.body.style.cursor='default';
         }
     }, []);
     const startDrawing = ({nativeEvent}) => {
@@ -249,13 +251,17 @@ function App(){
             document.body.style.cursor='wait';
             fetch('/import', {method: "POST", body: formData
             }).then((response) => {
+                if(response.ok === false){
+                    alert("Импортируемые данные содержат ошибку")
+                }else{
+                    getImage();
+                    getPoints();
+                    getRoads();
+                    getRoutes();
+                }
                 document.body.style.cursor='default';
                 msgState('');
                 isOpenState(false);
-                getImage();
-                getPoints();
-                getRoads();
-                getRoutes();
             });
         }
     }
