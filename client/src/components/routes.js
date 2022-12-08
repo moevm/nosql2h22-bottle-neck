@@ -48,7 +48,7 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
                     console.log(ev.target.id)
                     drawRoutes(ev.target.id)
                 }
-                }>
+                } style={{cursor: "pointer"}}>
                     <td id={i} >{i + 1}</td>
                     <td id={i} >{Math.round(data[i].length)/1000}</td>
                     <td id={i} >{Math.round(data[i].time*100)/100}</td>

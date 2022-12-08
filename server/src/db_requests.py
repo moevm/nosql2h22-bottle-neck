@@ -322,3 +322,8 @@ def update_dates(users_db: Database, session_id: str):
             }
         }
     )
+
+
+def check_and_clear_prev_simulation(users_db: Database, session_id: str):
+    if users_db.roads.count_documents({"user": session_id, "workload": {"$exists": True}}) > 0:
+        clear_data(users_db, session_id)

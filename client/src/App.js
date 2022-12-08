@@ -136,6 +136,9 @@ function App(){
             })
     }
     function drawRoutes(id, alwaysDraw=false){
+        if(dataRoutes === null){
+            return
+        }
         console.log('2',id, currentDrawRouteId)
         getSavedImage(true, ()=>{
             if(id === null){
@@ -253,6 +256,7 @@ function App(){
                 getPoints();
                 getRoads();
                 getRoutes();
+                currentDrawRouteIdState(null)
             })
         }
 
@@ -349,6 +353,7 @@ function App(){
                             dropPoints()
                             dataRoutesState(null);
                             dataRoadsState(null);
+                            currentDrawRouteIdState(null);
                         })
                         }}>Очистить точки на карте</button>
                 </div>
