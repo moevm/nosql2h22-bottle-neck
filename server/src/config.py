@@ -2,6 +2,7 @@ import datetime
 
 # Server settings
 TIMEOUT = datetime.timedelta(days=1)
+TIMEOUT_UPDATE = 0.8
 PORT = 5000
 MONGO_PORT = 27017
 

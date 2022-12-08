@@ -173,8 +173,7 @@ def update_roads(users_db: Database, roads: list[dict]):
             {
                 "$set": {
                     "workload": road["workload"],
-                    "car_count": road["car_count"],
-                    "date": datetime.utcnow()
+                    "car_count": road["car_count"]
                 }
             },
             upsert=True
@@ -182,8 +181,10 @@ def update_roads(users_db: Database, roads: list[dict]):
 
 
 def insert_routes(users_db: Database, session_id: str, routes: list[dict]):
+    cur_date = datetime.utcnow()
     for route in routes:
         route["user"] = session_id
+        route["date"] = cur_date
     return dumps({"acknowledged": users_db.routes.insert_many(routes).acknowledged})
 
 
@@ -287,3 +288,42 @@ def import_data(users_db: Database, session_id: str, data: dict):
         users_db.routes.insert_many(routes)
     create_map_image(users_db, session_id, with_workload=True)
     return True
+
+
+def update_dates(users_db: Database, session_id: str):
+    cur_date = datetime.utcnow()
+    users_db.roads.update_many(
+        {
+            "user": session_id
+        },
+        {
+            "$set": {
+                "date": cur_date
+            }
+        }
+    )
+    users_db.routes.update_many(
+        {
+            "user": session_id
+        },
+        {
+            "$set": {
+                "date": cur_date
+            }
+        }
+    )
+    users_db.users_info.update_many(
+        {
+            "_id": session_id
+        },
+        {
+            "$set": {
+                "date": cur_date
+            }
+        }
+    )
+
+
+def check_and_clear_prev_simulation(users_db: Database, session_id: str):
+    if users_db.roads.count_documents({"user": session_id, "workload": {"$exists": True}}) > 0:
+        clear_data(users_db, session_id)

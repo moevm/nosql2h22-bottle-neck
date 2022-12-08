@@ -1,4 +1,3 @@
-import logging
 import json
 from flask import Flask, make_response, Response, request, send_file
 from pymongo import MongoClient
@@ -39,8 +38,6 @@ def update_image(session_id: str) -> Response:
     min_x, min_y, x_coeff, y_coeff = db_requests.get_scale_parameters(users_db, session_id)
 
     data = request.get_json()
-    logging.error((float(data['point1']['x']), config.MAP_IMAGE_SIZE[1] - float(data['point1']['y'])))
-    logging.error((float(data['point2']['x']), config.MAP_IMAGE_SIZE[1] - float(data['point2']['y'])))
     point1 = utils.convert_image_coordinates_to_real((float(data['point1']['x']), float(data['point1']['y'])),
                                                      min_x, min_y, x_coeff, y_coeff, config.MAP_IMAGE_MARGIN)
     point2 = utils.convert_image_coordinates_to_real((float(data['point2']['x']), float(data['point2']['y'])),
@@ -51,6 +48,9 @@ def update_image(session_id: str) -> Response:
     polygon = utils.approximate_ellipse(point1, point2, radius, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)
     updated_roads, routes = utils.simulate(roads, car_count)
+    if len(updated_roads) == 0:
+        return make_response("No roads", 400)
+    db_requests.check_and_clear_prev_simulation(users_db, session_id)
     db_requests.update_roads(users_db, updated_roads)
     db_requests.insert_routes(users_db, session_id, routes)
     db_requests.create_map_image(users_db, session_id, True)
