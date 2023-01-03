@@ -3,4 +3,4 @@ pymongo==4.2.0
 flask==2.2.2
 overpy==0.6
 pillow==9.3.0
-
+networkx==2.8.8

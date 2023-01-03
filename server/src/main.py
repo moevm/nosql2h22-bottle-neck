@@ -47,7 +47,9 @@ def update_image(session_id: str) -> Response:
 
     polygon = utils.approximate_ellipse(point1, point2, radius, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)
-    updated_roads, routes = utils.simulate(roads, car_count)
+    road_point1 = db_requests.get_closest_road_in_polygon(users_db, session_id, polygon, list(point1))
+    road_point2 = db_requests.get_closest_road_in_polygon(users_db, session_id, polygon, list(point2))
+    updated_roads, routes = utils.simulate(roads, car_count, road_point1["_id"], road_point2["_id"])
     if len(updated_roads) == 0:
         return make_response("No roads", 400)
     db_requests.check_and_clear_prev_simulation(users_db, session_id)

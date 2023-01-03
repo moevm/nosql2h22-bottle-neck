@@ -102,6 +102,18 @@ def get_roads_with_polygon(users_db: Database, session_id: str, polygon: list[tu
     })
 
 
+def get_closest_road_in_polygon(users_db: Database, session_id: str, polygon: list[tuple[float, float]], road: list[list[int, int]]):
+    return users_db.roads.find_one({
+        "$and": [
+            {"user": session_id},
+            {"location": {
+                "$geoWithin": {"$polygon": polygon},
+            }},
+            {"location": {"$near": road}}
+        ]
+    })
+
+
 def filter_roads(users_db: Database, session_id: str, request_args: dict):
     # Transform get request args to mongo query
     filter_request = {"user": session_id}

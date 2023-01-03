@@ -12,6 +12,7 @@ def load_data(database):
 
     def add_ways(road):
         # Add ways to given road
+        # neighbours = roads_collection.find({"$and": [{"location.0": road["location"][1]}, {"location.1": {"$ne": road["location"][0]}}]})
         neighbours = roads_collection.find({"location.0": road["location"][1]})
         ways = [neighbour["_id"] for neighbour in neighbours]
         roads_collection.update_one({"_id": road["_id"]}, {"$set": {"ways": ways}})
