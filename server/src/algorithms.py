@@ -1,7 +1,9 @@
 import networkx as nx
 
 
-MAX_PREDECESSORS_COUNT = 2
+MAX_PREDECESSORS_COUNT = 1
+MAX_SPEED = 60 * 1000 / 60
+MIN_SPEED = 10 * 1000 / 60
 
 
 def convert_roads_to_graph(roads: dict) -> nx.DiGraph:
@@ -25,7 +27,7 @@ def find_paths(g: nx.DiGraph, source: str, target: str) -> list:
             if last_edge is not None:
                 bridges_set.add(last_edge)
             last_edge = None
-            if len(path) == 0 or path != paths[-1]:
+            if len(paths) == 0 or path != paths[-1]:
                 paths.append(path)
             count = 0
             for i, node_id in enumerate(path[1:-1]):
@@ -47,3 +49,33 @@ def find_paths(g: nx.DiGraph, source: str, target: str) -> list:
             last_edge = removed_edges.pop()
             g.add_edge(*last_edge)
     return paths
+
+
+def pass_flow_on_routes(routes: list[dict], cars_count: int, roads: dict):
+    while True:
+        for route in routes:
+            new_cars_count = __pass_flow_on_one_route(route, cars_count, roads)
+            if new_cars_count == cars_count or new_cars_count <= 0:
+                return
+            cars_count = new_cars_count
+
+
+def __pass_flow_on_one_route(route: dict, cars_count: int, roads: dict) -> int:
+    passed_count = 0
+    for road_id in route["roads_ids"]:
+        road = roads[road_id]
+        if road["car_count"] >= road["capacity"]:
+            continue
+        road["car_count"] += 1
+        passed_count += 1
+        if passed_count >= cars_count:
+            break
+    return cars_count - passed_count
+
+
+def calculate_route_time(route: dict) -> float:
+    time = 0.0
+    for workload, road_len in zip(route["workloads"], route["roads_lengths"]):
+        speed = max((1 - workload / 10) * MAX_SPEED, MIN_SPEED)
+        time += road_len / speed
+    return time

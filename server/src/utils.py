@@ -1,6 +1,5 @@
 from pyproj import Transformer
 from pymongo.cursor import Cursor
-from random import randint, choice
 import math
 import config
 import algorithms
@@ -98,7 +97,7 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
 def simulate(roads: Cursor, car_count: int, source, target) -> tuple[list[dict], list[dict]]:
     new_roads = {}
     for road in roads:
-        road["workload"] = randint(1, 10)
+        road["car_count"] = 0
         new_roads[str(road["_id"])] = road
     if len(new_roads) == 0:
         return [], []
@@ -111,7 +110,6 @@ def simulate(roads: Cursor, car_count: int, source, target) -> tuple[list[dict],
             "time": 0.0,
             "length": 0.0,
             "points": [],
-            "workloads": [0 for _ in range(len(route_path))],
             "roads_ids": route_path,
             "roads_lengths": []
         }
@@ -124,8 +122,12 @@ def simulate(roads: Cursor, car_count: int, source, target) -> tuple[list[dict],
         route["points"].append(new_roads[route_path[-1]]["location"][1])
         routes.append(route)
     routes = sorted(routes, key=lambda x: x["length"])
+    algorithms.pass_flow_on_routes(routes, car_count, new_roads)
+    for road in new_roads.values():
+        road["workload"] = round(road["car_count"] / road["capacity"] * 10)
     for route in routes:
-        route["time"] = randint(1, 1000) / 100
+        route["workloads"] = [new_roads[road_id]["workload"] for road_id in route["roads_ids"]]
+        route["time"] = algorithms.calculate_route_time(route)
         del route["roads_ids"]
         del route["roads_lengths"]
     return new_roads.values(), routes

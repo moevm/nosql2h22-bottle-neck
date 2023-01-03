@@ -44,6 +44,8 @@ def update_image(session_id: str) -> Response:
                                                      min_x, min_y, x_coeff, y_coeff, config.MAP_IMAGE_MARGIN)
     radius = utils.convert_radius_scale_to_real(float(data['radius']), x_coeff, y_coeff)
     car_count = int(data['car_count'])
+    if car_count <= 0:
+        return make_response("Car count must be positive", 400)
 
     polygon = utils.approximate_ellipse(point1, point2, radius, config.N)
     roads = db_requests.get_roads_with_polygon(users_db, session_id, polygon)
