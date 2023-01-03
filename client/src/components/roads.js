@@ -3,7 +3,7 @@ import InputComponent from "./inputComponent";
 
 import 'react-dropdown/style.css';
 
-export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter, data, dataMaxLen}) {
+export default function Roads({typeRoads, address, minWorkload, maxWorkload, filter, data, dataMaxLen, drawRoads}) {
     const getInitialState = () => {
         const value = "Тип дорог";
         return value;
@@ -30,9 +30,9 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
             Диапазон загруженности
                 <div class="inline">
                     <InputComponent label={"Min"} type={"Number"}
-                        onChange={() => console.log(1)} sRef={minWorkload}/>
+                        sRef={minWorkload}/>
                     <InputComponent label={"Max"} type={"Number"}
-                        onChange={() => console.log(1)} sRef={maxWorkload}/>
+                        sRef={maxWorkload}/>
                 </div>
             </div>
             <button onClick={filter}>Отфильтровать</button>
@@ -50,6 +50,7 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
             <table>
                 <thead>
                 <tr>
+                    <th>№</th>
                     <th>Адрес/имя</th>
                     <th>Тип дороги</th>
                     <th>Загруженнсоть</th>
@@ -60,10 +61,14 @@ export default function Roads({typeRoads, address, minWorkload, maxWorkload, fil
         if(data != null){
             let content = []
             for(let i = 0; i < data.length; i++){
-                content.push(<tr>
-                    <td>{data[i].address}</td>
-                    <td>{data[i].type}</td>
-                    <td>{data[i].workload}</td>
+                content.push(<tr onClick={(ev)=>{
+                    drawRoads(ev.target.id)
+                }
+                } style={{cursor: "pointer"}}>
+                    <td id={i}>{i + 1}</td>
+                    <td id={i}>{data[i].address}</td>
+                    <td id={i}>{data[i].type}</td>
+                    <td id={i}>{data[i].workload}</td>
                 </tr>)
             }
             table.push(<div className="table-scroll-body"><table><tbody>{content}</tbody></table></div>)

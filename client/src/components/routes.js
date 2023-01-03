@@ -7,18 +7,18 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
                 Длина маршрута в км
                 <div className="inline">
                     <InputComponent label={"Min"} type={"Number"}
-                                    onChange={() => console.log(1)} sRef={minLRef}/>
+                                    sRef={minLRef}/>
                     <InputComponent label={"Max"} type={"Number"}
-                                    onChange={() => console.log(1)} sRef={maxLRef}/>
+                                    sRef={maxLRef}/>
                 </div>
             </div>
             <div>
                 Время в пути в минутах
                 <div className="inline">
                     <InputComponent label={"Min"} type={"Number"}
-                                    onChange={() => console.log(1)} sRef={minTRef}/>
+                                    sRef={minTRef}/>
                     <InputComponent label={"Max"} type={"Number"}
-                                    onChange={() => console.log(1)} sRef={maxTRef}/>
+                                    sRef={maxTRef}/>
                 </div>
             </div>
         </div>
@@ -45,7 +45,6 @@ export default function Routes({minLRef, maxLRef, minTRef, maxTRef, filter, data
             let content = []
             for(let i = 0; i < data.length; i++){
                 content.push(<tr onClick={(ev)=>{
-                    console.log(ev.target.id)
                     drawRoutes(ev.target.id)
                 }
                 } style={{cursor: "pointer"}}>

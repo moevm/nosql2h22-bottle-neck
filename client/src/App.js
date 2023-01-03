@@ -29,6 +29,7 @@ function App(){
     const [roadsMaxCount, roadsMaxCountState] = useState(null)
     const [routesMaxCount, routesMaxCountState] = useState(null)
     const [currentDrawRouteId, currentDrawRouteIdState] = useState(null)
+    const [currentDrawRoadId, currentDrawRoadIdState] = useState(null)
     const [mapImage, mapImageState] = useState(null)
     useEffect(() => {
         document.body.style.cursor='wait';
@@ -50,7 +51,6 @@ function App(){
     }, []);
     const startDrawing = ({nativeEvent}) => {
         const {offsetX, offsetY} = nativeEvent;
-        console.log(offsetX, offsetY)
         if(point1 === null){
             contextRef.current.beginPath();
             contextRef.current.moveTo(offsetX, offsetY);
@@ -65,12 +65,10 @@ function App(){
             contextRef.current.stroke();
             point2State([offsetX, offsetY])
         }
-        console.log(point1, point2)
         nativeEvent.preventDefault();
     };
     function getPoints(){
         if(point2 != null && point1 != null){
-            console.log(point1, point2);
             contextRef.current.beginPath();
             contextRef.current.moveTo(point1[0], point1[1]);
             contextRef.current.lineTo(point1[0], point1[1]);
@@ -89,22 +87,18 @@ function App(){
             contextRef.current.drawImage(image_new, 0, 0, 830, 830)
             if(flag){
                 getPoints();
-                console.log(flag, '2')
                 f()
             }
         }
-        console.log("img")
     }
     function getSavedImage(flag = true, f = ()=>{}){
         contextRef.current.drawImage(mapImage, 0, 0, 830, 830)
         if(flag){
             getPoints();
-            console.log(flag, '2')
             f()
         }
     }
     function dropPoints(){
-        console.log(5)
         contextRef.current.globalCompositeOperation = 'destination-out';
         contextRef.current.lineWidth=10
         if(point1 != null){
@@ -139,12 +133,10 @@ function App(){
         if(dataRoutes === null){
             return
         }
-        console.log('2',id, currentDrawRouteId)
         getSavedImage(true, ()=>{
             if(id === null){
                 return
             }
-            console.log("checking draw rotues")
             if(!alwaysDraw && currentDrawRouteId === id){
                 currentDrawRouteIdState(null)
                 return
@@ -161,6 +153,29 @@ function App(){
 
 
     }
+    function drawRoadsCircle(id, alwaysDraw=false){
+        if(dataRoads === null){
+            return
+        }
+        getSavedImage(true, ()=>{
+            if(id === null){
+                return
+            }
+            if(!alwaysDraw && currentDrawRoadId === id){
+                currentDrawRoadIdState(null)
+                return
+            }
+            currentDrawRoadIdState(id)
+            let points = dataRoads[id]["location"]
+            contextRef.current.strokeStyle = "rgba(174, 65, 191, 255)"
+            contextRef.current.globalAlpha = 0.5
+            contextRef.current.fillStyle = "rgba(174, 65, 191, 100)"
+            contextRef.current.arc((points[0][0] + points[1][0]) / 2, (points[0][1] + points[1][1]) / 2, 10, 0, 2 * Math.PI)
+            contextRef.current.fill()
+            contextRef.current.strokeStyle = "blue"
+            contextRef.current.globalAlpha = 1.0
+        })
+    }
     function drawLine(x,y) {
         contextRef.current.lineTo(x, y);
         contextRef.current.stroke()
@@ -171,10 +186,6 @@ function App(){
     //     bar: 2,
     // })
     function filterRoads(ev){
-        console.log(address.current.value)
-        console.log(minWorkload.current.value)
-        console.log(maxWorkload.current.value)
-        console.log(typeRoads.current.value)
         let url_params = {}
         if(minWorkload.current.value !== ""){
             url_params["min"] = minWorkload.current.value
@@ -192,16 +203,11 @@ function App(){
         fetch('/roads?'+new URLSearchParams(url_params))
             .then(response=>response.json())
             .then((json) => {
-                console.log(json)
                 dataRoadsState(json)
             })
         ev.preventDefault();
     }
     function filterRoutes(ev){
-        console.log(minLenght.current.value)
-        console.log(maxLenght.current.value)
-        console.log(minTime.current.value)
-        console.log(maxTime.current.value)
         let url_params = {}
         if(minLenght.current.value !== ""){
             url_params["minLength"] = minLenght.current.value * 1000
@@ -223,15 +229,12 @@ function App(){
     }
     function simulate(ev){
         ev.preventDefault()
-        console.log( point1[0], point1[1], point2[0], point2[1], radius.current.value,countCars.current.value)
-        console.log('ee');
-        console.log(point1 == null || point2 == null)
         if(point1 == null || point2 == null){
             msgState("Не указаны точки маршрута");
         }
         else{
             msgState("")
-            console.log(2, 'radius.current.value',Number(radius.current.value)/1000)
+            document.body.style.cursor='wait';
             fetch("/simulate", {
                 method: 'POST',
                 headers: {
@@ -251,7 +254,12 @@ function App(){
                     "car_count": countCars.current.value
                 })
             }).then((responce)=>{
-                console.log(responce);
+                document.body.style.cursor='default';
+                if(responce.status != 200){
+                    responce.text().then((msg) => {alert(msg)})
+                    
+                    return
+                }
                 getImage();
                 getPoints();
                 getRoads();
@@ -268,7 +276,6 @@ function App(){
         return (<p>Количество маршрутов: {dataRoutes.length}</p>)
     }
     function importFile(){
-        console.log('Import',fileName.current.files[0])
         if(fileName.current.value === ''){
             msgState('Название файла остутсвует')
         }
@@ -338,7 +345,7 @@ function App(){
                 <p>{msg}</p>
                 <div className="inline">
                     <InputComponent value={0} label={"Количество машин"} type={"number"}
-                                    onChange={() => console.log(1)} sRef={countCars}/>
+                                    sRef={countCars}/>
                     <InputComponent value={false} label={"Радиус поиска маршрутов"} variant={"input"}
                                     type={"checkbox"} sRef={isRadius}/>
 
@@ -359,7 +366,7 @@ function App(){
                 </div>
                 {getCountRoutes()}
                 <br/>
-                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes} roadsMaxCount={roadsMaxCount} routesMaxCount={routesMaxCount} curDrawRouteId={currentDrawRouteId}/>
+                <ColorToggleButton typeRoads={typeRoads} address={address} minWorkload={minWorkload} maxWorkload={maxWorkload} minLenght={minLenght} maxLenght={maxLenght} minTime={minTime} maxTime={maxTime} filterRoads={filterRoads} filterRoutes={filterRoutes} dataRoads={dataRoads} dataRoutes={dataRoutes} drawRoutes={drawRoutes} roadsMaxCount={roadsMaxCount} routesMaxCount={routesMaxCount} curDrawRouteId={currentDrawRouteId} drawRoads={drawRoadsCircle} curDrawRoadId={currentDrawRoadId}/>
             </div>
             <div align="center">
                 <div class="table">
