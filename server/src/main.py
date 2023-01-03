@@ -54,6 +54,8 @@ def update_image(session_id: str) -> Response:
     updated_roads, routes = utils.simulate(roads, car_count, road_point1["_id"], road_point2["_id"])
     if len(updated_roads) == 0:
         return make_response("No roads", 400)
+    if len(routes) == 0:
+        return make_response("No routes", 400)
     db_requests.check_and_clear_prev_simulation(users_db, session_id)
     db_requests.update_roads(users_db, updated_roads)
     db_requests.insert_routes(users_db, session_id, routes)

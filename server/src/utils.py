@@ -103,7 +103,7 @@ def simulate(roads: Cursor, car_count: int, source, target) -> tuple[list[dict],
         return [], []
     routes_paths = algorithms.find_paths(algorithms.convert_roads_to_graph(new_roads), str(source), str(target))
     if len(routes_paths) == 0:
-        return [], []
+        return [None], []
     routes = []
     for route_path in routes_paths:
         route = {
