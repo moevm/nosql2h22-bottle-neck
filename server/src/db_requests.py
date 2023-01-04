@@ -102,6 +102,18 @@ def get_roads_with_polygon(users_db: Database, session_id: str, polygon: list[tu
     })
 
 
+def get_closest_road_in_polygon(users_db: Database, session_id: str, polygon: list[tuple[float, float]], road: list[list[int, int]]):
+    return users_db.roads.find_one({
+        "$and": [
+            {"user": session_id},
+            {"location": {
+                "$geoWithin": {"$polygon": polygon},
+            }},
+            {"location": {"$near": road}}
+        ]
+    })
+
+
 def filter_roads(users_db: Database, session_id: str, request_args: dict):
     # Transform get request args to mongo query
     filter_request = {"user": session_id}
@@ -190,7 +202,7 @@ def insert_routes(users_db: Database, session_id: str, routes: list[dict]):
 
 def clear_data(users_db: Database, session_id: str):
     clear_roads_request = users_db.roads.update_many({"user": session_id, "workload": {"$exists": True}},
-                                                     {"$unset": {"workload": ""}})
+                                                     {"$unset": {"workload": ""}, "$set": {"car_count": 0}})
     users_db.routes.delete_many({"user": session_id})
     create_map_image(users_db, session_id)
     return dumps({"modified_roads_count": clear_roads_request.modified_count,

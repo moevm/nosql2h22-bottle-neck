@@ -1,8 +1,8 @@
 from pyproj import Transformer
 from pymongo.cursor import Cursor
-from random import randint, choice
 import math
 import config
+import algorithms
 
 EPS = 0.000001
 transformer = Transformer.from_crs(config.FROM_EPSG, config.TO_EPSG, always_xy=True)
@@ -94,35 +94,42 @@ def approximate_ellipse(p1: tuple[float, float], p2: tuple[float, float],
             for point in quadrant1 + quadrant2 + quadrant3 + quadrant4]
 
 
-def simulate(roads: Cursor, car_count: int) -> tuple[list[dict], list[dict]]:
+def simulate(roads: Cursor, car_count: int, source, target) -> tuple[list[dict], list[dict]]:
     new_roads = {}
     for road in roads:
-        cars = randint(0, road["capacity"])
-        road["car_count"] = cars
-        road["workload"] = round(cars / road["capacity"] * 10)
-        new_roads[(road["_id"])] = road
+        road["car_count"] = 0
+        new_roads[str(road["_id"])] = road
     if len(new_roads) == 0:
         return [], []
+    routes_paths = algorithms.find_paths(algorithms.convert_roads_to_graph(new_roads), str(source), str(target))
+    if len(routes_paths) == 0:
+        return [None], []
     routes = []
-    roads_values = list(new_roads.values())
-    for _ in range(randint(0, 20)):
+    for route_path in routes_paths:
         route = {
             "time": 0.0,
             "length": 0.0,
             "points": [],
-            "workloads": []
+            "roads_ids": route_path,
+            "roads_lengths": []
         }
-        cur_road = roads_values[randint(0, len(new_roads) - 1)]
-        route["points"].append(cur_road["location"][0])
-        for _ in range(len(new_roads) // 10):
-            route["points"].append(cur_road["location"][1])  # end
-            route["workloads"].append(cur_road["workload"])
-            route["length"] += distance(cur_road["location"][0], cur_road["location"][1])
-            route["time"] += randint(10, 100) / 100
-            if len(cur_road["ways"]) == 0:
-                break
-            cur_road = new_roads.get(choice(cur_road["ways"]), cur_road)
+        for road_id in route_path:
+            road = new_roads[road_id]
+            route["points"].append(road["location"][0])
+            road_len = math.dist(road["location"][0], road["location"][1])
+            route["length"] += road_len
+            route["roads_lengths"].append(road_len)
+        route["points"].append(new_roads[route_path[-1]]["location"][1])
         routes.append(route)
+    routes = sorted(routes, key=lambda x: x["length"])
+    algorithms.pass_flow_on_routes(routes, car_count, new_roads)
+    for road in new_roads.values():
+        road["workload"] = round(road["car_count"] / road["capacity"] * 10)
+    for route in routes:
+        route["workloads"] = [new_roads[road_id]["workload"] for road_id in route["roads_ids"]]
+        route["time"] = algorithms.calculate_route_time(route)
+        del route["roads_ids"]
+        del route["roads_lengths"]
     return new_roads.values(), routes
 
 
